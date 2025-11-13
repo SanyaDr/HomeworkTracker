@@ -2,6 +2,8 @@ from fastapi import FastAPI
 
 app = FastAPI(title="Homework Tracker", version="0.0.1")
 
+# TODO async def ??
+
 @app.get("/")
 def read_root():
     return {"message": "Добро пожаловать в Трекер домашних заданий!"}

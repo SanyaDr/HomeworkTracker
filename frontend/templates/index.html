@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трекер домашних заданий</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            width: 30%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        .feature:hover {
+            transform: translateY(-10px);
+        }
+        .feature h3 {
+            margin-top: 0;
+        }
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #ff5252;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Добро пожаловать в Трекер домашних заданий!</h1>
+    <p>Здесь вы можете легко отслеживать свои задания, добавлять новые, отмечать выполненные и никогда не забывать о дедлайнах. Начнем управлять вашим временем эффективно!</p>
+    <div class="features">
+        <div class="feature">
+            <h3>📝 Добавление задач</h3>
+            <p>Создавайте новые задания с описанием и сроками.</p>
+        </div>
+        <div class="feature">
+            <h3>✅ Отслеживание прогресса</h3>
+            <p>Отмечайте выполненные задачи и следите за успехами.</p>
+        </div>
+        <div class="feature">
+            <h3>🔔 Напоминания</h3>
+            <p>Получайте уведомления о приближающихся дедлайнах.</p>
+        </div>
+    </div>
+    </br>
+    <button onclick="alert('Функционал скоро будет добавлен!')">Начать</button>
+</div>
+</body>
+</html>

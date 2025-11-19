@@ -1,3 +1,6 @@
 /.idea/
 /.venv/
-/test_main.http/
+/.pytest_cache/
+/__pycache__/
+
+/test_*.http/

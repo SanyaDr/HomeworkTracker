@@ -35,9 +35,6 @@ def create_tables():
     print("Таблицы успешно созданы!")
 
 
-
-
-
 # Функция для проверки подключения к БД
 def debug_test_connection():
     try:

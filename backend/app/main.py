@@ -5,8 +5,8 @@ from fastapi.responses import HTMLResponse
 from .database import create_tables
 
 app = FastAPI(title="Homework Tracker", version="0.0.1")
-# app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
-# templates = Jinja2Templates(directory="frontend/templates")
+app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
+templates = Jinja2Templates(directory="frontend/templates")
 
 
 # # Создаем таблицы при запуске приложения

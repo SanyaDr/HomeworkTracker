@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Index
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Index, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+from app.enums import TaskStatus, TaskPriority
+
 
 # Импортируем Base из database.py (если он там создается)
 from .database import Base
@@ -11,6 +13,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     login = Column(String(50), unique=True, nullable=False, index=True)
+    hashed_password = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, index=True)
     name = Column(String(100))
     groupName = Column(String(100))
@@ -44,10 +47,11 @@ class Task(Base):
     subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False, index=True)
     title = Column(String(200), nullable=False)
     description = Column(Text)
-    status = Column(String(20), default="assigned", index=True)
-    priority = Column(String(20), default="medium", index=True)
-    deadline = Column(DateTime, index=True)  # ← ИНДЕКС УЖЕ ЗДЕСЬ!
     created_at = Column(DateTime, default=datetime.utcnow)
+    deadline = Column(DateTime, index=True)  # ← ИНДЕКС УЖЕ ЗДЕСЬ!
+
+    status = Column(SQLEnum(TaskStatus), default="assigned", index=True)
+    priority = Column(SQLEnum(TaskPriority), default="medium", index=True)
 
     user = relationship("User", back_populates="tasks")
     subject = relationship("Subject", back_populates="tasks")

@@ -17,6 +17,7 @@ from app.models import User, Subject, Task
 # logging.basicConfig()
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
+# Получение сессии для подключения к БД
 @pytest.fixture(scope="function")
 def test_db():
     # Создаём временный файл для базы данных
@@ -39,12 +40,14 @@ def test_db():
         engine.dispose()
         os.unlink(db_file.name)
 
+# Создание пустых папок с фронтом, чтобы app не жаловался
 @pytest.fixture(scope="function", autouse=True)
 def create_test_dirs():
     os.makedirs("frontend/static", exist_ok=True)
     os.makedirs("frontend/templates", exist_ok=True)
     yield
 
+#  Перегрузка клиента для тестов
 @pytest.fixture(scope="function")
 def client(test_db):
     def override_get_db():

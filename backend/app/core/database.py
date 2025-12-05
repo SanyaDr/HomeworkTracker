@@ -39,10 +39,10 @@ def create_tables():
 def debug_test_connection():
     try:
         with engine.connect() as conn:
-            print("✅ Подключение к базе данных успешно!")
+            print("Подключение к базе данных успешно!")
             return True
     except Exception as e:
-        print(f"❌ Ошибка подключения к базе данных: {e}")
+        print(f"Ошибка подключения к базе данных: {e}")
         return False
 
 # Функция для получения информации о БД

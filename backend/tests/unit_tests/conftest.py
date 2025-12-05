@@ -8,10 +8,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.main import app
-from app.database import Base, get_db
+from app.core.database import Base, get_db
 
 # ЯВНЫЙ ИМПОРТ ВСЕХ МОДЕЛЕЙ — ОБЯЗАТЕЛЬНО!
-from app.models import User, Subject, Task
 
 # Включаем логирование SQL для отладки (уберите после исправления)
 # logging.basicConfig()
@@ -43,8 +42,8 @@ def test_db():
 # Создание пустых папок с фронтом, чтобы app не жаловался
 @pytest.fixture(scope="function", autouse=True)
 def create_test_dirs():
-    os.makedirs("frontend/static", exist_ok=True)
-    os.makedirs("frontend/templates", exist_ok=True)
+    os.makedirs("../../frontend/static", exist_ok=True)
+    os.makedirs("../../frontend/templates", exist_ok=True)
     yield
 
 #  Перегрузка клиента для тестов

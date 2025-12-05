@@ -2,8 +2,8 @@
 def test_imports():
     """Просто проверяем что импорты работают"""
     try:
-        from app.models import User
-        from app.database import Base
+        from app.model.models import User
+        from app.core.database import Base
         assert True  # Если дошли сюда - все ок!
     except ImportError as e:
         assert False, f"Import failed: {e}"

@@ -1,10 +1,13 @@
-from sqlalchemy.exc import IntegrityError  # ← ЗАМЕНИТЕ ЭТУ СТРОКУ (было: from sqlite3 import IntegrityError)
+""" Тестирование базы данных (проверка структуры БД, ограничений, SQLAlchemy итд """
+
+from sqlalchemy.exc import IntegrityError
 
 import pytest
 from sqlalchemy.orm import Session
 
-from app.models import User, Subject, Task  # ← ИМПОРТИРУЙ МОДЕЛИ!
-from app.enums import TaskStatus, TaskPriority
+from app.model.models import User, Subject, Task
+from app.model.enums import TaskStatus, TaskPriority
+from datetime import datetime
 
 class TestDatabase:
     # Тест создания таблиц (пустых)
@@ -161,13 +164,46 @@ class TestDatabase:
         found = test_db.query(Task).filter(Task.priority == TaskPriority.LOW).first()
         assert found is not None
         # Проверка индекса на deadline
-        found = test_db.query(Task).filter(Task.deadline.isnot(None)).first()
-        assert found is not None
+        # found = test_db.query(Task).filter(Task.deadline.isnot(None)).first()
+        # assert found is not None
 
+    def test_create_task_with_deadline(self, test_db: Session):
+        """Тест создания задания с дедлайном"""
+        # Создаем пользователя
+        user = User(login="testuser", email="test@test.com", hashed_password="12345")
+        test_db.add(user)
+        test_db.commit()
+        test_db.refresh(user)
+
+        # Создаем предмет
+        subject = Subject(user_id=user.id, name="Math")
+        test_db.add(subject)
+        test_db.commit()
+        test_db.refresh(subject)
+
+        # Создаем задание С ДЕДЛАЙНОМ
+        task = Task(
+            user_id=user.id,
+            subject_id=subject.id,
+            title="Math homework",
+            description="Solve problems",
+            status=TaskStatus.ASSIGNED,
+            priority=TaskPriority.HIGH,
+            deadline=datetime(2024, 12, 31, 23, 59, 59)  # ← ЕСТЬ ДЕДЛАЙН!
+        )
+        test_db.add(task)
+        test_db.commit()
+        test_db.refresh(task)
+
+        # Проверяем индекс по дедлайну
+        found = test_db.query(Task).filter(Task.deadline.isnot(None)).first()
+        assert found is not None  # ✅ Теперь найдет задание
+        assert found.deadline is not None
+        assert found.deadline.year == 2024
 
     def test_cascade_delete_user(self, test_db: Session):
         """Тест каскадного удаления: удаление User удаляет Subjects и Tasks"""
-        user = User(email="user@example.com", login="user", name="User")
+        user = User(email="user@example.com", login="user", name="User", hashed_password="12345")
         test_db.add(user)
         test_db.commit()
 
@@ -189,7 +225,7 @@ class TestDatabase:
 
     def test_cascade_delete_subject(self, test_db: Session):
         """Тест каскадного удаления: удаление Subject удаляет Tasks"""
-        user = User(email="user@example.com", login="user", name="User")
+        user = User(email="user@example.com", login="user", name="User", hashed_password="12345")
         test_db.add(user)
         test_db.commit()
 

@@ -4,10 +4,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from app.core.database import get_db
-from app.crud import users as crud_users
-from app import schemes
-from app.core.auth import (
+from ...core.database import get_db
+from ...crud import users as crud_users
+from ... import schemes
+from ...core.auth import (
     authenticate_user,
     create_access_token,
     get_current_user,

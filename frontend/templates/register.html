@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - Task Tracker{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
+                <div class="card auth-card">
+                    <div class="card-body">
+                        <!-- Заголовок -->
+                        <div class="text-center mb-4">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width: 70px; height: 70px;">
+                                <i class="fas fa-user-plus fa-2x"></i>
+                            </div>
+                            <h2 class="mb-2">Создание аккаунта</h2>
+                            <p class="text-muted">Присоединяйтесь к Task Tracker прямо сейчас</p>
+                        </div>
+
+                        <!-- Форма регистрации -->
+                        <form id="registerForm">
+                            <!-- Уведомления -->
+                            <div id="registerError" class="alert alert-danger d-none" role="alert"></div>
+                            <div id="registerSuccess" class="alert alert-success d-none" role="alert"></div>
+
+                            <div class="row">
+                                <!-- Логин -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="regLogin" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Логин*
+                                    </label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="regLogin"
+                                           name="login"
+                                           required
+                                           minlength="3"
+                                           maxlength="50"
+                                           placeholder="Придумайте логин">
+                                    <div class="form-text">
+                                        От 3 до 50 символов. Только латинские буквы, цифры и _
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        Логин должен быть от 3 до 50 символов
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="regEmail" class="form-label">
+                                        <i class="fas fa-envelope me-1"></i>Email*
+                                    </label>
+                                    <input type="email"
+                                           class="form-control"
+                                           id="regEmail"
+                                           name="email"
+                                           required
+                                           placeholder="example@email.com">
+                                    <div class="invalid-feedback">
+                                        Пожалуйста, введите корректный email
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Имя и группа -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="regName" class="form-label">
+                                        <i class="fas fa-id-card me-1"></i>Имя*
+                                    </label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="regName"
+                                           name="name"
+                                           required
+                                           placeholder="Ваше имя">
+                                    <div class="invalid-feedback">
+                                        Пожалуйста, введите ваше имя
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="regGroup" class="form-label">
+                                        <i class="fas fa-users me-1"></i>Группа/Класс
+                                    </label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="regGroup"
+                                           name="groupName"
+                                           placeholder="Например: 10А или ПИ-21">
+                                    <div class="form-text">
+                                        Необязательно. Можно указать позже
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Пароли -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="regPassword" class="form-label">
+                                        <i class="fas fa-lock me-1"></i>Пароль*
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password"
+                                               class="form-control"
+                                               id="regPassword"
+                                               name="password"
+                                               required
+                                               minlength="6"
+                                               maxlength="72"
+                                               placeholder="Не менее 6 символов">
+                                        <button class="btn btn-outline-secondary"
+                                                type="button"
+                                                id="toggleRegPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        Пароль должен быть не менее 6 символов
+                                    </div>
+                                    <div class="password-strength mt-2">
+                                        <div class="progress" style="height: 5px;">
+                                            <div class="progress-bar"
+                                                 id="passwordStrength"
+                                                 style="width: 0%;"></div>
+                                        </div>
+                                        <small class="text-muted" id="passwordHint">
+                                            Введите пароль
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="regConfirmPassword" class="form-label">
+                                        <i class="fas fa-lock me-1"></i>Подтверждение пароля*
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password"
+                                               class="form-control"
+                                               id="regConfirmPassword"
+                                               name="confirmPassword"
+                                               required
+                                               placeholder="Повторите пароль">
+                                        <button class="btn btn-outline-secondary"
+                                                type="button"
+                                                id="toggleConfirmPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback" id="confirmPasswordError">
+                                        Пароли не совпадают
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Тип аккаунта -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-graduation-cap me-1"></i>Тип аккаунта
+                                </label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input"
+                                                   type="radio"
+                                                   name="accountType"
+                                                   id="studentType"
+                                                   value="student"
+                                                   checked>
+                                            <label class="form-check-label" for="studentType">
+                                                <i class="fas fa-user-graduate me-1"></i>Студент
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="radio"
+                                                   name="accountType"
+                                                   id="schoolType"
+                                                   value="school">
+                                            <label class="form-check-label" for="schoolType">
+                                                <i class="fas fa-school me-1"></i>Школьник
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Соглашение -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           id="agreeTerms"
+                                           required>
+                                    <label class="form-check-label" for="agreeTerms">
+                                        Я согласен с
+                                        <a href="/terms" class="text-decoration-none">условиями использования</a>
+                                        и
+                                        <a href="/privacy" class="text-decoration-none">политикой конфиденциальности</a>
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        Вы должны согласиться с условиями
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Кнопки -->
+                            <div class="d-grid gap-2 mb-3">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-user-plus me-2"></i>Создать аккаунт
+                                </button>
+                            </div>
+
+                            <!-- Уже есть аккаунт -->
+                            <div class="text-center">
+                                <p class="mb-0">Уже есть аккаунт?</p>
+                                <a href="/login" class="btn btn-outline-primary mt-2">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Войти
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Преимущества регистрации -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title text-center mb-3">
+                            <i class="fas fa-gift me-2"></i>Преимущества регистрации
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-3">
+                                <i class="fas fa-sync-alt fa-2x text-primary mb-2"></i>
+                                <h6>Синхронизация</h6>
+                                <p class="small text-muted">Доступ с любых устройств</p>
+                            </div>
+                            <div class="col-md-4 text-center mb-3">
+                                <i class="fas fa-chart-bar fa-2x text-primary mb-2"></i>
+                                <h6>Статистика</h6>
+                                <p class="small text-muted">Подробная аналитика успеваемости</p>
+                            </div>
+                            <div class="col-md-4 text-center mb-3">
+                                <i class="fas fa-shield-alt fa-2x text-primary mb-2"></i>
+                                <h6>Безопасность</h6>
+                                <p class="small text-muted">Защита ваших данных</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ссылка на главную -->
+                <div class="text-center mt-4">
+                    <a href="/" class="text-decoration-none">
+                        <i class="fas fa-arrow-left me-1"></i>Вернуться на главную
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Переключатели видимости паролей
+        const toggleRegPassword = document.getElementById('toggleRegPassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const regPassword = document.getElementById('regPassword');
+        const confirmPassword = document.getElementById('regConfirmPassword');
+
+        if (toggleRegPassword) {
+            toggleRegPassword.addEventListener('click', function() {
+                const type = regPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                regPassword.setAttribute('type', type);
+                this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+        }
+
+        if (toggleConfirmPassword) {
+            toggleConfirmPassword.addEventListener('click', function() {
+                const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                confirmPassword.setAttribute('type', type);
+                this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+        }
+
+        // Проверка сложности пароля
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const strengthBar = document.getElementById('passwordStrength');
+            const strengthHint = document.getElementById('passwordHint');
+
+            if (!password) {
+                strengthBar.style.width = '0%';
+                strengthBar.className = 'progress-bar';
+                strengthHint.textContent = 'Введите пароль';
+                return;
+            }
+
+            // Длина пароля
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+
+            // Наличие разных типов символов
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            // Обновляем индикатор
+            const percentage = Math.min((strength / 6) * 100, 100);
+            strengthBar.style.width = percentage + '%';
+
+            // Цвет и текст в зависимости от силы
+            if (strength < 2) {
+                strengthBar.className = 'progress-bar bg-danger';
+                strengthHint.textContent = 'Слабый пароль';
+            } else if (strength < 4) {
+                strengthBar.className = 'progress-bar bg-warning';
+                strengthHint.textContent = 'Средний пароль';
+            } else {
+                strengthBar.className = 'progress-bar bg-success';
+                strengthHint.textContent = 'Надежный пароль';
+            }
+        }
+
+        // Проверка совпадения паролей
+        function checkPasswordMatch() {
+            const password = regPassword.value;
+            const confirm = confirmPassword.value;
+            const errorElement = document.getElementById('confirmPasswordError');
+
+            if (confirm && password !== confirm) {
+                errorElement.style.display = 'block';
+                confirmPassword.classList.add('is-invalid');
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                confirmPassword.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        // Слушатели событий
+        if (regPassword) {
+            regPassword.addEventListener('input', function() {
+                checkPasswordStrength(this.value);
+                checkPasswordMatch();
+            });
+        }
+
+        if (confirmPassword) {
+            confirmPassword.addEventListener('input', checkPasswordMatch);
+        }
+
+        // Обработка формы регистрации
+        const registerForm = document.getElementById('registerForm');
+        const registerError = document.getElementById('registerError');
+        const registerSuccess = document.getElementById('registerSuccess');
+
+        if (registerForm) {
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Сбрасываем ошибки
+                registerError.classList.add('d-none');
+                registerSuccess.classList.add('d-none');
+
+                // Получаем данные формы
+                const formData = {
+                    login: document.getElementById('regLogin').value.trim(),
+                    email: document.getElementById('regEmail').value.trim(),
+                    name: document.getElementById('regName').value.trim(),
+                    groupName: document.getElementById('regGroup').value.trim() || null,
+                    password: document.getElementById('regPassword').value,
+                    accountType: document.querySelector('input[name="accountType"]:checked').value
+                };
+
+                // Валидация
+                if (!checkPasswordMatch()) {
+                    registerError.textContent = 'Пароли не совпадают';
+                    registerError.classList.remove('d-none');
+                    return;
+                }
+
+                if (formData.password.length < 6) {
+                    registerError.textContent = 'Пароль должен быть не менее 6 символов';
+                    registerError.classList.remove('d-none');
+                    return;
+                }
+
+                if (!document.getElementById('agreeTerms').checked) {
+                    registerError.textContent = 'Вы должны согласиться с условиями использования';
+                    registerError.classList.remove('d-none');
+                    return;
+                }
+
+                // Показываем индикатор загрузки
+                const submitBtn = registerForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Регистрация...';
+                submitBtn.disabled = true;
+
+                try {
+                    // Отправляем запрос на сервер
+                    const response = await API.request('/users', 'POST', formData);
+
+                    // Показываем успех
+                    registerSuccess.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        Аккаунт успешно создан! Перенаправляем на страницу входа...
+                    `;
+                    registerSuccess.classList.remove('d-none');
+
+                    // Автоматический вход через 2 секунды
+                    setTimeout(async () => {
+                        try {
+                            const loginResponse = await API.login(formData.login, formData.password);
+                            localStorage.setItem('access_token', loginResponse.access_token);
+                            window.location.href = '/dashboard';
+                        } catch (loginError) {
+                            // Если автовход не удался, идем на страницу входа
+                            window.location.href = '/login';
+                        }
+                    }, 2000);
+
+                } catch (error) {
+                    // Показываем ошибку
+                    registerError.textContent = error.message || 'Ошибка при регистрации. Попробуйте еще раз.';
+                    registerError.classList.remove('d-none');
+
+                    // Восстанавливаем кнопку
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+
+                    // Прокручиваем к ошибке
+                    registerError.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        }
+
+        // Автофокус на поле логина
+        if (document.getElementById('regLogin')) {
+            document.getElementById('regLogin').focus();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,11 +1,9 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Index, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from app.model.enums import TaskStatus, TaskPriority
 
-
-# Импортируем Base из database.py (если он там создается)
-from app.core.database import Base
+from .enums import TaskStatus, TaskPriority
+from ..core.database import Base
 
 class User(Base):
     __tablename__ = "users"

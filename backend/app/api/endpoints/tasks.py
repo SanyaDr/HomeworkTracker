@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 
-from app.core.database import get_db
-from app.crud import tasks as crud_tasks
-from app import schemes
-from app.core.auth import get_current_user
+from ...core.database import get_db
+from ...crud import tasks as crud_tasks
+from ... import schemes
+from ...core.auth import get_current_user
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -157,25 +157,25 @@ def complete_task(
         )
     return db_task
 
-
-@router.get("/stats/summary")
-def get_tasks_summary(
-        db: Session = Depends(get_db),
-        current_user: schemes.UserResponse = Depends(get_current_user)
-):
-    """
-    Получение статистики по задачам
-    """
-    stats = crud_tasks.get_user_tasks_count(db, current_user.id)
-
-    # Добавляем просроченные задачи (опционально)
-    now = datetime.utcnow()
-    overdue = db.query(models.Task).filter(
-        models.Task.user_id == current_user.id,
-        models.Task.status == models.TaskStatus.ASSIGNED,
-        models.Task.deadline.isnot(None),
-        models.Task.deadline < now
-    ).count()
-
-    stats["overdue"] = overdue
-    return stats
+#
+# @router.get("/stats/summary")
+# def get_tasks_summary(
+#         db: Session = Depends(get_db),
+#         current_user: schemes.UserResponse = Depends(get_current_user)
+# ):
+#     """
+#     Получение статистики по задачам
+#     """
+#     stats = crud_tasks.get_user_tasks_count(db, current_user.id)
+#
+#     # Добавляем просроченные задачи (опционально)
+#     now = datetime.utcnow()
+#     overdue = db.query(models.Task).filter(
+#         models.Task.user_id == current_user.id,
+#         models.Task.status == models.TaskStatus.ASSIGNED,
+#         models.Task.deadline.isnot(None),
+#         models.Task.deadline < now
+#     ).count()
+#
+#     stats["overdue"] = overdue
+#     return stats

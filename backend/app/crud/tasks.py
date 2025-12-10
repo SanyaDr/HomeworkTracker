@@ -2,15 +2,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import List, Optional
 from datetime import datetime
-from app import schemes
-from app.model import enums, models
 
 
-def create_task(db: Session, task: schemes.TaskCreate, user_id: int) -> models.Task:
+def create_task(db: Session, task, user_id: int) :
     """
     Создание новой задачи
     """
-    db_task = models.Task(
+    from ..model import Task, enums
+
+    db_task = Task(
         **task.model_dump(),
         user_id=user_id,
         status=enums.TaskStatus.ASSIGNED
@@ -21,43 +21,46 @@ def create_task(db: Session, task: schemes.TaskCreate, user_id: int) -> models.T
     return db_task
 
 
-def get_task_by_id(db: Session, task_id: int, user_id: Optional[int] = None) -> Optional[models.Task]:
+def get_task_by_id(db: Session, task_id: int, user_id: Optional[int] = None) -> Optional["Task"]:
     """
     Получение задачи по ID
     Если передан user_id, проверяем принадлежность задачи пользователю
     """
-    query = db.query(models.Task).filter(models.Task.id == task_id)
+    from ..model import Task
+    query = db.query(Task).filter(Task.id == task_id)
     if user_id:
-        query = query.filter(models.Task.user_id == user_id)
+        query = query.filter(Task.user_id == user_id)
     return query.first()
 
 
 def get_tasks(
         db: Session,
         user_id: int,
-        filters: schemes.TaskFilter,
+        filters,
         include_overdue: bool = True
-) -> tuple[List[models.Task], int]:
+):
     """
     Получение списка задач с фильтрацией и пагинацией
 
     Если include_overdue=True, автоматически помечает просроченные задачи
     """
-    query = db.query(models.Task).filter(models.Task.user_id == user_id)
+    from ..model import Task, enums  # ← относительный импорт
+
+    query = db.query(Task).filter(Task.user_id == user_id)
 
     # Применяем фильтры
     if filters.status:
-        query = query.filter(models.Task.status == filters.status)
+        query = query.filter(Task.status == filters.status)
     if filters.priority:
-        query = query.filter(models.Task.priority == filters.priority)
+        query = query.filter(Task.priority == filters.priority)
     if filters.subject_id:
-        query = query.filter(models.Task.subject_id == filters.subject_id)
+        query = query.filter(Task.subject_id == filters.subject_id)
     if filters.search:
         search_term = f"%{filters.search}%"
         query = query.filter(
             or_(
-                models.Task.title.ilike(search_term),
-                models.Task.description.ilike(search_term)
+                Task.title.ilike(search_term),
+                Task.description.ilike(search_term)
             )
         )
 
@@ -66,12 +69,13 @@ def get_tasks(
         now = datetime.utcnow()
         # Находим задачи, которые просрочены но ещё в статусе ASSIGNED
         overdue_tasks = query.filter(
-            models.Task.status == enums.TaskStatus.ASSIGNED,
-            models.Task.deadline.isnot(None),
-            models.Task.deadline < now
+            Task.status == enums.TaskStatus.ASSIGNED,
+            Task.deadline.isnot(None),
+            Task.deadline < now
         ).all()
 
         for task in overdue_tasks:
+            # TODO automatic overdue tasks
             # Здесь можно обновить статус или добавить поле "просрочено"
             # В зависимости от требований
             pass  # Пока оставляем как есть, можно добавить логику позже
@@ -81,8 +85,8 @@ def get_tasks(
 
     # Сортировка по дедлайну (сначала ближайшие)
     query = query.order_by(
-        models.Task.deadline.asc().nulls_last(),
-        models.Task.created_at.desc()
+        Task.deadline.asc().nulls_last(),
+        Task.created_at.desc()
     )
 
     # Пагинация
@@ -94,9 +98,9 @@ def get_tasks(
 def update_task(
         db: Session,
         task_id: int,
-        task_update: schemes.TaskUpdate,
+        task_update,
         user_id: Optional[int] = None
-) -> Optional[models.Task]:
+):
     """
     Обновление задачи
     """
@@ -131,13 +135,15 @@ def delete_task(db: Session, task_id: int, user_id: Optional[int] = None) -> boo
     return True
 
 
-def complete_task(db: Session, task_id: int, user_id: Optional[int] = None) -> Optional[models.Task]:
+def complete_task(db: Session, task_id: int, user_id: Optional[int] = None):
     """
     Отметить задачу как выполненную
     """
     db_task = get_task_by_id(db, task_id, user_id)
     if not db_task:
         return None
+
+    from ..model import enums  # ← относительный импорт
 
     db_task.status = enums.TaskStatus.COMPLETED
     # db_task.updated_at = datetime.utcnow()  # Если добавите поле в модель
@@ -151,20 +157,23 @@ def get_user_tasks_count(db: Session, user_id: int) -> dict:
     """
     Получение статистики по задачам пользователя
     """
-    total = db.query(models.Task).filter(models.Task.user_id == user_id).count()
-    completed = db.query(models.Task).filter(
-        models.Task.user_id == user_id,
-        models.Task.status == enums.TaskStatus.COMPLETED
+    from .. import schemes  # ← относительный импорт
+    from ..model import Task, enums  # ← относительный импорт
+
+    total = db.query(Task).filter(Task.user_id == user_id).count()
+    completed = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == enums.TaskStatus.COMPLETED
     ).count()
-    assigned = db.query(models.Task).filter(
-        models.Task.user_id == user_id,
-        models.Task.status == enums.TaskStatus.ASSIGNED
+    assigned = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == enums.TaskStatus.ASSIGNED
     ).count()
 
     # Задачи с дедлайном (опционально)
-    with_deadline = db.query(models.Task).filter(
-        models.Task.user_id == user_id,
-        models.Task.deadline.isnot(None)
+    with_deadline = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.deadline.isnot(None)
     ).count()
 
     return {

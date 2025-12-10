@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session
 from typing import Optional
-from app.model import enums, models
 from passlib.context import CryptContext
-from app import schemes
 
 # Для хеширования паролей
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -18,25 +16,29 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def get_user_by_id(db: Session, user_id: int) -> Optional[models.User]:
+def get_user_by_id(db: Session, user_id: int) -> Optional["User"]:
     """Получение пользователя по ID"""
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    from ..model import User  # ← импортируем класс напрямую
+    return db.query(User).filter(User.id == user_id).first()
 
 
-def get_user_by_login(db: Session, login: str) -> Optional[models.User]:
+def get_user_by_login(db: Session, login: str) -> Optional["User"]:
     """Получение пользователя по логину"""
-    return db.query(models.User).filter(models.User.login == login).first()
+    from ..model import User  # ← импортируем класс напрямую
+    return db.query(User).filter(User.login == login).first()
 
 
-def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
+def get_user_by_email(db: Session, email: str) -> Optional["User"]:
     """Получение пользователя по email"""
-    return db.query(models.User).filter(models.User.email == email).first()
+    from ..model import User  # ← импортируем класс напрямую
+    return db.query(User).filter(User.email == email).first()
 
 
-def create_user(db: Session, user: schemes.UserCreate) -> models.User:
+def create_user(db: Session, user):
     """Создание нового пользователя"""
+    from ..model import User
     hashed_password = get_password_hash(user.password)
-    db_user = models.User(
+    db_user = User(
         **user.model_dump(exclude={"password"}),
         hashed_password=hashed_password
     )
@@ -46,7 +48,7 @@ def create_user(db: Session, user: schemes.UserCreate) -> models.User:
     return db_user
 
 
-def authenticate_user(db: Session, login: str, password: str) -> Optional[models.User]:
+def authenticate_user(db: Session, login: str, password: str) -> Optional["User"]:
     """Аутентификация пользователя"""
     user = get_user_by_login(db, login)
     if not user:
@@ -61,7 +63,7 @@ def update_user(
         user_id: int,
         user_update: dict,
         exclude_fields: list = ["password"]
-) -> Optional[models.User]:
+) -> Optional["User"]:
     """Обновление данных пользователя"""
     db_user = get_user_by_id(db, user_id)
     if not db_user:

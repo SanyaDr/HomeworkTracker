@@ -5,12 +5,11 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
-from app.crud import users as crud_users
-from app import schemes
+from .database import get_db
+from .. import schemes
 
 # Конфигурация JWT
-SECRET_KEY = "your-secret-key-change-in-production"  # Измените в продакшене!
+SECRET_KEY = "your-secret-key-change-in-production"  # TODO Измените в продакшене!
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -59,9 +58,18 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    from app.crud import users as crud_users
     token_data = verify_token(token, credentials_exception)
     user = crud_users.get_user_by_id(db, user_id=token_data.user_id)
     if user is None:
         raise credentials_exception
 
     return schemes.UserResponse.model_validate(user)
+
+
+def authenticate_user(db: Session, username: str, password: str):
+    """
+    Аутентификация пользователя
+    """
+    from app.crud import users as crud_users
+    return crud_users.authenticate_user(db, username, password)

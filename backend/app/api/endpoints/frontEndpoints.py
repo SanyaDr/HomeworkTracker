@@ -214,3 +214,12 @@ async def about_page(request: Request, templates = Depends(get_templates)):
         "current_year": datetime.now().year
     }
     return templates.TemplateResponse("about.html", context)
+
+@router.get("/forgot-password", response_class=HTMLResponse)
+async def forgot_password_page(request: Request, templates = Depends(get_templates)):
+    # Страница забыл пароль
+    context = {
+        "request": request,
+        "current_year": datetime.now().year
+    }
+    return templates.TemplateResponse("forgotPassword.html", context)

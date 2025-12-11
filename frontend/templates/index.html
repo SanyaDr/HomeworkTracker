@@ -1,95 +1,259 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Трекер домашних заданий</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            max-width: 600px;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-        }
-        h1 {
-            font-size: 3em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        p {
-            font-size: 1.2em;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        .features {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 30px;
-        }
-        .feature {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 10px;
-            width: 30%;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-        .feature:hover {
-            transform: translateY(-10px);
-        }
-        .feature h3 {
-            margin-top: 0;
-        }
-        button {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        button:hover {
-            background: #ff5252;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h1>Добро пожаловать в Трекер домашних заданий!</h1>
-    <p>Здесь вы можете легко отслеживать свои задания, добавлять новые, отмечать выполненные и никогда не забывать о дедлайнах. Начнем управлять вашим временем эффективно!</p>
-    <div class="features">
-        <div class="feature">
-            <h3>📝 Добавление задач</h3>
-            <p>Создавайте новые задания с описанием и сроками.</p>
-        </div>
-        <div class="feature">
-            <h3>✅ Отслеживание прогресса</h3>
-            <p>Отмечайте выполненные задачи и следите за успехами.</p>
-        </div>
-        <div class="feature">
-            <h3>🔔 Напоминания</h3>
-            <p>Получайте уведомления о приближающихся дедлайнах.</p>
+{% extends "base.html" %}
+
+{% block title %}Task Tracker - Электронный журнал для студентов{% endblock %}
+
+{% block content %}
+<!-- Герой секция -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title">
+                    Управляйте учебными заданиями легко и эффективно
+                </h1>
+                <p class="hero-subtitle">
+                    Task Tracker - это современный электронный журнал для студентов и школьников.
+                    Отслеживайте дедлайны, планируйте учебную нагрузку и повышайте свою продуктивность.
+                </p>
+
+                {% if not user %}
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="/register" class="btn btn-light btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Начать бесплатно
+                    </a>
+                    <a href="/login" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Уже есть аккаунт
+                    </a>
+                </div>
+                {% else %}
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="/dashboard" class="btn btn-light btn-lg">
+                        <i class="fas fa-tachometer-alt me-2"></i>Перейти в дашборд
+                    </a>
+                    <a href="/tasks" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-tasks me-2"></i>Мои задания
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="https://via.placeholder.com/500x400/4361ee/ffffff?text=Task+Tracker"
+                     alt="Task Tracker Interface"
+                     class="img-fluid rounded-3 shadow">
+            </div>
         </div>
     </div>
-    </br>
-    <button onclick="alert('Функционал скоро будет добавлен!')">Начать</button>
-</div>
-</body>
-</html>
+</section>
+
+<!-- Статистика -->
+{% if user %}
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Ваша статистика</h2>
+        <div class="row" id="stats-container">
+            <div class="col-md-3 mb-4">
+                <div class="card stat-card">
+                    <div class="stat-number" id="total-tasks">0</div>
+                    <div class="stat-label">Всего заданий</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card stat-card">
+                    <div class="stat-number" id="completed-tasks">0</div>
+                    <div class="stat-label">Выполнено</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card stat-card">
+                    <div class="stat-number" id="pending-tasks">0</div>
+                    <div class="stat-label">В процессе</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card stat-card">
+                    <div class="stat-number" id="overdue-tasks">0</div>
+                    <div class="stat-label">Просрочено</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Особенности -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <h2 class="text-center mb-5">Почему выбирают Task Tracker?</h2>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <h4>Управление заданиями</h4>
+                    <p class="text-muted">
+                        Создавайте, редактируйте и отслеживайте выполнение учебных заданий.
+                        Все ваши задачи в одном месте.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h4>Контроль сроков</h4>
+                    <p class="text-muted">
+                        Никогда не пропускайте дедлайны. Получайте уведомления о приближающихся сроках сдачи.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Аналитика успеваемости</h4>
+                    <p class="text-muted">
+                        Отслеживайте свою продуктивность с помощью подробной статистики и графиков.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h4>Система предметов</h4>
+                    <p class="text-muted">
+                        Организуйте задания по предметам. Настройте цвета и приоритеты для каждого курса.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h4>Умные напоминания</h4>
+                    <p class="text-muted">
+                        Автоматические напоминания о предстоящих заданиях и просроченных задачах.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h4>Доступ с любого устройства</h4>
+                    <p class="text-muted">
+                        Работайте с заданиями на компьютере, планшете или смартфоне.
+                        Синхронизация в реальном времени.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Для кого -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Task Tracker подходит для</h2>
+
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary text-white rounded-circle p-3 me-3">
+                            <i class="fas fa-user-graduate fa-2x"></i>
+                        </div>
+                        <h4 class="mb-0">Студентов вузов</h4>
+                    </div>
+                    <p>
+                        Управляйте курсовыми работами, лабораторными, семинарами и экзаменами.
+                        Планируйте учебную нагрузку на весь семестр.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Разделение по дисциплинам</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Приоритеты заданий</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Статистика успеваемости</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+                <div class="card p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success text-white rounded-circle p-3 me-3">
+                            <i class="fas fa-school fa-2x"></i>
+                        </div>
+                        <h4 class="mb-0">Школьников</h4>
+                    </div>
+                    <p>
+                        Следите за домашними заданиями, проектами и контрольными работами.
+                        Развивайте навыки самоорганизации и тайм-менеджмента.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Простой интерфейс</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Цветовые метки</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Мотивационные достижения</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA секция -->
+{% if not user %}
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Начните использовать Task Tracker уже сегодня!</h2>
+        <p class="mb-4 fs-5">
+            Присоединяйтесь к тысячам студентов и школьников, которые уже управляют
+            своими учебными заданиями с помощью нашего сервиса.
+        </p>
+        <a href="/register" class="btn btn-light btn-lg px-5">
+            <i class="fas fa-rocket me-2"></i>Создать аккаунт
+        </a>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% if user %}
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        // Загружаем статистику для авторизованных пользователей-->
+<!--        async function loadStats() {-->
+<!--            try {-->
+<!--                const response = await API.request('/tasks/stats/summary');-->
+
+<!--                if (response) {-->
+<!--                    document.getElementById('total-tasks').textContent = response.total || 0;-->
+<!--                    document.getElementById('completed-tasks').textContent = response.completed || 0;-->
+<!--                    document.getElementById('pending-tasks').textContent = response.assigned || 0;-->
+<!--                    document.getElementById('overdue-tasks').textContent = response.overdue || 0;-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error('Error loading stats:', error);-->
+<!--            }-->
+<!--        }-->
+
+<!--        loadStats();-->
+<!--    });-->
+<!--</script>-->
+{% endif %}
+{% endblock %}

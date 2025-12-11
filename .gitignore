@@ -1,0 +1,8 @@
+/.idea/
+/.venv/
+/.pytest_cache/
+/__pycache__/
+
+/test_*.http/
+
+.env

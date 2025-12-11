@@ -74,7 +74,7 @@ async def dashboard_page(
         db,
         current_user.id,
         filters,
-        include_overdue=False
+        include_overdue=True # Тут было False
     )
 
     context = {

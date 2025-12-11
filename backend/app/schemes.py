@@ -27,7 +27,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Схема для создания пользователя"""
-    password: str = Field(..., min_length=8, max_length=100)
+    password: str = Field(..., min_length=8, max_length=72)
 
 class UserLogin(BaseModel):
     """Схема для входа в систему"""

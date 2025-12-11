@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
@@ -7,11 +8,12 @@ from sqlalchemy.orm import Session
 
 from .database import get_db
 from .. import schemes
+from . import startConfig
 
 # Конфигурация JWT
-SECRET_KEY = "your-secret-key-change-in-production"  # TODO Измените в продакшене!
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = startConfig.SECRET_KEY
+ALGORITHM = startConfig.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = startConfig.ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login")
 

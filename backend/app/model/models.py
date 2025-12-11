@@ -1,9 +1,12 @@
+import pytz
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Index, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
 from .enums import TaskStatus, TaskPriority
 from ..core.database import Base
+
+MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 
 class User(Base):
     __tablename__ = "users"
@@ -15,7 +18,7 @@ class User(Base):
     name = Column(String(100))
     groupName = Column(String(100))
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(MOSCOW_TZ))
 
     subjects = relationship("Subject", back_populates="user", cascade="all, delete")
     tasks = relationship("Task", back_populates="user", cascade="all, delete")

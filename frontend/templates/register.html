@@ -27,7 +27,7 @@
 
                             <div class="row">
                                 <!-- Логин -->
-                                <div class="col-md-6 mb-3">
+                                <div class="mb-3">
                                     <label for="regLogin" class="form-label">
                                         <i class="fas fa-user me-1"></i>Логин*
                                     </label>
@@ -46,9 +46,11 @@
                                         Логин должен быть от 3 до 50 символов
                                     </div>
                                 </div>
+                            </div>
 
+                            <div class="row">
                                 <!-- Email -->
-                                <div class="col-md-6 mb-3">
+                                <div class="mb-3">
                                     <label for="regEmail" class="form-label">
                                         <i class="fas fa-envelope me-1"></i>Email*
                                     </label>
@@ -66,7 +68,7 @@
 
                             <!-- Имя и группа -->
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class=" mb-3">
                                     <label for="regName" class="form-label">
                                         <i class="fas fa-id-card me-1"></i>Имя*
                                     </label>
@@ -80,8 +82,10 @@
                                         Пожалуйста, введите ваше имя
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="col-md-6 mb-3">
+                            <div class="row">
+                                <div class="mb-3">
                                     <label for="regGroup" class="form-label">
                                         <i class="fas fa-users me-1"></i>Группа/Класс
                                     </label>
@@ -98,7 +102,7 @@
 
                             <!-- Пароли -->
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class=" mb-3">
                                     <label for="regPassword" class="form-label">
                                         <i class="fas fa-lock me-1"></i>Пароль*
                                     </label>
@@ -108,9 +112,9 @@
                                                id="regPassword"
                                                name="password"
                                                required
-                                               minlength="6"
+                                               minlength="8"
                                                maxlength="72"
-                                               placeholder="Не менее 6 символов">
+                                               placeholder="Не менее 8 символов">
                                         <button class="btn btn-outline-secondary"
                                                 type="button"
                                                 id="toggleRegPassword">
@@ -131,8 +135,10 @@
                                         </small>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="col-md-6 mb-3">
+                            <div class="row">
+                                <div class="mb-3">
                                     <label for="regConfirmPassword" class="form-label">
                                         <i class="fas fa-lock me-1"></i>Подтверждение пароля*
                                     </label>
@@ -155,42 +161,43 @@
                                 </div>
                             </div>
 
-                            <!-- Тип аккаунта -->
-                            <div class="mb-3">
-                                <label class="form-label">
-                                    <i class="fas fa-graduation-cap me-1"></i>Тип аккаунта
-                                </label>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input"
-                                                   type="radio"
-                                                   name="accountType"
-                                                   id="studentType"
-                                                   value="student"
-                                                   checked>
-                                            <label class="form-check-label" for="studentType">
-                                                <i class="fas fa-user-graduate me-1"></i>Студент
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="radio"
-                                                   name="accountType"
-                                                   id="schoolType"
-                                                   value="school">
-                                            <label class="form-check-label" for="schoolType">
-                                                <i class="fas fa-school me-1"></i>Школьник
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
+<!--                            &lt;!&ndash; Тип аккаунта &ndash;&gt;-->
+<!--                            <div class="mb-3">-->
+<!--                                <label class="form-label">-->
+<!--                                    <i class="fas fa-graduation-cap me-1"></i>Тип аккаунта-->
+<!--                                </label>-->
+<!--                                <div class="row">-->
+<!--                                    <div class="col-md-6">-->
+<!--                                        <div class="form-check mb-2">-->
+<!--                                            <input class="form-check-input"-->
+<!--                                                   type="radio"-->
+<!--                                                   name="accountType"-->
+<!--                                                   id="studentType"-->
+<!--                                                   value="student"-->
+<!--                                                   checked>-->
+<!--                                            <label class="form-check-label" for="studentType">-->
+<!--                                                <i class="fas fa-user-graduate me-1"></i>Студент-->
+<!--                                            </label>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-md-6">-->
+<!--                                        <div class="form-check mv">-->
+<!--                                            <input class="form-check-input"-->
+<!--                                                   type="radio"-->
+<!--                                                   name="accountType"-->
+<!--                                                   id="schoolType"-->
+<!--                                                   value="school">-->
+<!--                                            <label class="form-check-label" for="schoolType">-->
+<!--                                                <i class="fas fa-school me-1"></i>Школьник-->
+<!--                                            </label>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
 
                             <!-- Соглашение -->
-                            <div class="mb-4">
+                            <div class="mb-4" style="margin-top: 1rem">
                                 <div class="form-check">
                                     <input class="form-check-input"
                                            type="checkbox"
@@ -378,7 +385,7 @@
                     name: document.getElementById('regName').value.trim(),
                     groupName: document.getElementById('regGroup').value.trim() || null,
                     password: document.getElementById('regPassword').value,
-                    accountType: document.querySelector('input[name="accountType"]:checked').value
+                    // accountType: document.querySelector('input[name="accountType"]:checked').value
                 };
 
                 // Валидация

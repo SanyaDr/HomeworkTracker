@@ -1,5 +1,5 @@
 # backend/app/api/endpoints/users.py
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -22,6 +22,7 @@ def create_user(
         user: schemes.UserCreate,
         db: Session = Depends(get_db)
 ):
+    print("Зашел в create_user")
     """
     Регистрация нового пользователя
     """
@@ -40,18 +41,20 @@ def create_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
-
+    print("прошел проверки create_user")
     return crud_users.create_user(db, user)
 
 
 @router.post("/login", response_model=schemes.Token)
 def login(
+        response: Response,
         form_data: OAuth2PasswordRequestForm = Depends(),
         db: Session = Depends(get_db)
 ):
     """
     Аутентификация пользователя
     """
+    print("зашел в post login endpoints/users")
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -64,6 +67,17 @@ def login(
     access_token = create_access_token(
         data={"sub": str(user.id)},
         expires_delta=access_token_expires
+    )
+    print("Начал ставить куки")
+    # Устанавливаем токен в куки
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        httponly=True,  # Не доступен через JavaScript (защита от XSS)
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        # samesite="Lax",
+        secure=True
     )
 
     return {"access_token": access_token, "token_type": "bearer"}

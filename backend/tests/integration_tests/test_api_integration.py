@@ -24,7 +24,7 @@ class TestAPIIntegration:
             "groupName": "10A"
         }
 
-        register_resp = client.post("/api/users/", json=register_data)
+        register_resp = client.post("/api/users/register", json=register_data)
         assert register_resp.status_code == 200, "Ошибка регистрации"
         user_data = register_resp.json()
         user_id = user_data["id"]

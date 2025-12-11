@@ -1,3 +1,4 @@
+# backend/app/main
 import os
 
 from fastapi import FastAPI, Request, Depends
@@ -81,25 +82,34 @@ def startup_event():
 
 
 # ==================== API ЭНДПОИНТЫ ====================
+#
+# @app.get("/api/health")
+# async def health_check(db: Session = Depends(get_db)):
+#     """
+#     Проверка здоровья приложения
+#     """
+#     try:
+#         db.execute("SELECT 1")
+#         db_status = "connected"
+#     except Exception as e:
+#         db_status = f"error: {str(e)}"
+#
+#     return JSONResponse({
+#         "status": "healthy",
+#         "service": "task-tracker",
+#         "database": db_status,
+#         "timestamp": datetime.utcnow().isoformat(),
+#         "version": "1.0.0"
+#     })
 
-@app.get("/api/health")
-async def health_check(db: Session = Depends(get_db)):
-    """
-    Проверка здоровья приложения
-    """
-    try:
-        db.execute("SELECT 1")
-        db_status = "connected"
-    except Exception as e:
-        db_status = f"error: {str(e)}"
-
-    return JSONResponse({
-        "status": "healthy",
-        "service": "task-tracker",
-        "database": db_status,
-        "timestamp": datetime.utcnow().isoformat(),
-        "version": "1.0.0"
-    })
+# ==================== СБРОС ПАРОЛЯ ==========================
+@app.get("/reset-password")
+async def reset_password_page(request: Request, token: str = None):
+    """Страница сброса пароля"""
+    return templates.TemplateResponse(
+        "resetPassword.html",
+        {"request": request, "token": token}
+    )
 
 # ==================== ОБРАБОТЧИКИ ОШИБОК ====================
 
@@ -116,6 +126,7 @@ async def not_found_exception_handler(request: Request, exc):
 
     # Для фронтенда возвращаем JSON с информацией об ошибке
     # или можно создать специальный шаблон для 404
+    # TODO добавь ту фотку с телеги
     return JSONResponse(
         status_code=404,
         content={

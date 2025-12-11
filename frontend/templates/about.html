@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}О проекте - Task Tracker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Заголовок -->
+    <div class="text-center mb-5">
+        <h1 class="hero-title">О проекте Task Tracker</h1>
+        <p class="hero-subtitle">Миссия, история и команда проекта</p>
+    </div>
+
+    <!-- Миссия проекта -->
+    <div class="card mb-5">
+        <div class="card-body p-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="mb-4"><i class="fas fa-bullseye me-2 text-primary"></i>Наша миссия</h2>
+                    <p class="lead">
+                        Помогать студентам и школьникам эффективно организовывать учебный процесс,
+                        развивать навыки тайм-менеджмента и достигать академических успехов.
+                    </p>
+                    <p>
+                        Мы верим, что правильная организация учебных задач — это ключ к успешной
+                        учебе без стресса и перегрузок. Task Tracker создан, чтобы сделать
+                        управление учебными заданиями простым, интуитивно понятным и мотивирующим.
+                    </p>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="https://via.placeholder.com/400x300/4361ee/ffffff?text=Mission"
+                         alt="Наша миссия"
+                         class="img-fluid rounded-3 shadow">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- История проекта -->
+    <div class="card mb-5">
+        <div class="card-body p-5">
+            <h2 class="mb-4 text-center"><i class="fas fa-history me-2 text-primary"></i>История проекта</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="text-center p-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-lightbulb fa-2x"></i>
+                        </div>
+                        <h4>2023 год</h4>
+                        <h5 class="text-primary">Идея</h5>
+                        <p>Возникла идея создания удобного инструмента для управления учебными заданиями</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="text-center p-4">
+                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-code fa-2x"></i>
+                        </div>
+                        <h4>2024 год</h4>
+                        <h5 class="text-success">Разработка</h5>
+                        <p>Начало активной разработки платформы и тестирование с первыми пользователями</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="text-center p-4">
+                        <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-rocket fa-2x"></i>
+                        </div>
+                        <h4>2025 год</h4>
+                        <h5 class="text-warning">Запуск</h5>
+                        <p>Официальный запуск Task Tracker и привлечение тысяч пользователей</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Команда -->
+    <div class="card mb-5">
+        <div class="card-body p-5">
+            <h2 class="mb-5 text-center"><i class="fas fa-users me-2 text-primary"></i>Наша команда</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body p-4">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width: 120px; height: 120px;">
+                                <i class="fas fa-user-tie fa-3x"></i>
+                            </div>
+                            <h4>Алексей Петров</h4>
+                            <h6 class="text-primary mb-3">Основатель и CEO</h6>
+                            <p>Выпускник МГТУ им. Баумана. Имеет 10-летний опыт в IT и образовательных технологиях.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body p-4">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width: 120px; height: 120px;">
+                                <i class="fas fa-laptop-code fa-3x"></i>
+                            </div>
+                            <h4>Мария Сидорова</h4>
+                            <h6 class="text-success mb-3">Технический директор</h6>
+                            <p>Full-stack разработчик с опытом создания образовательных платформ и мобильных приложений.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body p-4">
+                            <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width: 120px; height: 120px;">
+                                <i class="fas fa-graduation-cap fa-3x"></i>
+                            </div>
+                            <h4>Иван Кузнецов</h4>
+                            <h6 class="text-info mb-3">Педагогический советник</h6>
+                            <p>Кандидат педагогических наук, эксперт в области образовательных технологий и методик обучения.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Технологии -->
+    <div class="card mb-5">
+        <div class="card-body p-5">
+            <h2 class="mb-4 text-center"><i class="fas fa-cogs me-2 text-primary"></i>Технологии</h2>
+            <div class="row">
+                <div class="col-md-3 col-6 text-center mb-4">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 80px; height: 80px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg"
+                             alt="Python" style="width: 50px;">
+                    </div>
+                    <h6>Python</h6>
+                    <small class="text-muted">Backend</small>
+                </div>
+                <div class="col-md-3 col-6 text-center mb-4">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 80px; height: 80px;">
+                        <img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
+                             alt="FastAPI" style="width: 50px;">
+                    </div>
+                    <h6>FastAPI</h6>
+                    <small class="text-muted">API Framework</small>
+                </div>
+                <div class="col-md-3 col-6 text-center mb-4">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 80px; height: 80px;">
+                        <img src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo-shadow.png"
+                             alt="Bootstrap" style="width: 50px;">
+                    </div>
+                    <h6>Bootstrap 5</h6>
+                    <small class="text-muted">Frontend Framework</small>
+                </div>
+                <div class="col-md-3 col-6 text-center mb-4">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 80px; height: 80px;">
+                        <img src="https://www.sqlite.org/images/sqlite370_banner.gif"
+                             alt="SQLite" style="width: 50px;">
+                    </div>
+                    <h6>SQLite</h6>
+                    <small class="text-muted">Database</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контакты -->
+    <div class="card">
+        <div class="card-body p-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="mb-4"><i class="fas fa-envelope me-2 text-primary"></i>Свяжитесь с нами</h2>
+                    <p>У вас есть вопросы, предложения или хотите сотрудничать?</p>
+                    <div class="mb-3">
+                        <i class="fas fa-envelope me-2 text-primary"></i>
+                        <strong>Email:</strong> support@tasktracker.ru
+                    </div>
+                    <div class="mb-3">
+                        <i class="fas fa-phone me-2 text-primary"></i>
+                        <strong>Телефон:</strong> +7 (495) 123-45-67
+                    </div>
+                    <div class="mb-3">
+                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                        <strong>Адрес:</strong> Москва, ул. Образцова, д. 12
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="https://via.placeholder.com/400x300/3a0ca3/ffffff?text=Contact+Us"
+                         alt="Контакты"
+                         class="img-fluid rounded-3 shadow">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

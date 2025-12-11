@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}Дашборд - Task Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Левая колонка - Основная информация -->
+        <div class="col-lg-8">
+            <!-- Приветствие -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-2">Привет, {{ user.name }}! 👋</h1>
+                            <p class="text-muted mb-0">
+                                {% if user.groupName %}
+                                {{ user.groupName }} • Последний вход: сегодня
+                                {% else %}
+                                Добро пожаловать в Task Tracker
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="user-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            {{ user.name|first|upper }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="card mb-4">
+                <div class="card-header bg-white border-bottom-0">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Быстрые действия</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-6">
+                            <a href="/tasks/new" class="btn btn-outline-primary w-100 py-3">
+                                <i class="fas fa-plus fa-2x mb-2"></i><br>
+                                Новое задание
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="/subjects" class="btn btn-outline-success w-100 py-3">
+                                <i class="fas fa-book fa-2x mb-2"></i><br>
+                                Предметы
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="/calendar" class="btn btn-outline-info w-100 py-3">
+                                <i class="fas fa-calendar fa-2x mb-2"></i><br>
+                                Календарь
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="/profile" class="btn btn-outline-secondary w-100 py-3">
+                                <i class="fas fa-cog fa-2x mb-2"></i><br>
+                                Настройки
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ближайшие задания -->
+            <div class="card mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Ближайшие дедлайны</h5>
+                    <a href="/tasks" class="btn btn-sm btn-outline-primary">Все задания</a>
+                </div>
+                <div class="card-body">
+                    <div id="upcoming-tasks">
+                        <!-- Задания будут загружены через JavaScript -->
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Загрузка...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Загружаем ваши задания...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Статистика продуктивности -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Ваша продуктивность</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 col-6 text-center mb-4">
+                            <div class="stat-number text-primary" id="total-tasks-dash">0</div>
+                            <div class="stat-label">Всего заданий</div>
+                        </div>
+                        <div class="col-md-3 col-6 text-center mb-4">
+                            <div class="stat-number text-success" id="completed-tasks-dash">0</div>
+                            <div class="stat-label">Выполнено</div>
+                        </div>
+                        <div class="col-md-3 col-6 text-center mb-4">
+                            <div class="stat-number text-warning" id="active-tasks-dash">0</div>
+                            <div class="stat-label">В работе</div>
+                        </div>
+                        <div class="col-md-3 col-6 text-center mb-4">
+                            <div class="stat-number text-danger" id="overdue-tasks-dash">0</div>
+                            <div class="stat-label">Просрочено</div>
+                        </div>
+                    </div>
+
+                    <!-- Прогресс бар -->
+                    <div class="mt-4">
+                        <h6 class="mb-3">Прогресс выполнения (за неделю)</h6>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success"
+                                 id="progress-bar"
+                                 style="width: 0%"
+                                 role="progressbar"
+                                 aria-valuenow="0"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                <span id="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка - Боковая панель -->
+        <div class="col-lg-4">
+            <!-- Статистика по предметам -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Предметы</h5>
+                </div>
+                <div class="card-body">
+                    <div id="subjects-list">
+                        <!-- Предметы будут загружены через JavaScript -->
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" style="width: 1.5rem; height: 1.5rem;" role="status">
+                                <span class="visually-hidden">Загрузка...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="/subjects" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>Добавить предмет
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Предстоящие события -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>События</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="bg-primary text-white rounded-circle p-2 me-3">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Сессия</h6>
+                                <small class="text-muted">Через 2 недели</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="bg-success text-white rounded-circle p-2 me-3">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Курсовая работа</h6>
+                                <small class="text-muted">Срок: 15 дней</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="/calendar" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-calendar-alt me-1"></i>Весь календарь
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Советы продуктивности -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Совет дня</h5>
+                </div>
+                <div class="card-body">
+                    <div class="tip-of-the-day">
+                        <p class="mb-0">
+                            <i class="fas fa-quote-left text-primary me-2"></i>
+                            Разбейте большие задачи на мелкие подзадачи.
+                            Так проще начать и отслеживать прогресс!
+                            <i class="fas fa-quote-right text-primary ms-2"></i>
+                        </p>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-chart-pie me-1"></i>
+                            <strong>Помните:</strong> 25% пользователей, которые разбивают задачи,
+                            выполняют их на 30% быстрее.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Загрузка статистики
+        async function loadDashboardStats() {
+            try {
+                // Загрузка общих статистик
+                const statsResponse = await API.request('/tasks/stats/summary');
+                if (statsResponse) {
+                    document.getElementById('total-tasks-dash').textContent = statsResponse.total || 0;
+                    document.getElementById('completed-tasks-dash').textContent = statsResponse.completed || 0;
+                    document.getElementById('active-tasks-dash').textContent = statsResponse.assigned || 0;
+                    document.getElementById('overdue-tasks-dash').textContent = statsResponse.overdue || 0;
+
+                    // Расчет прогресса
+                    const total = statsResponse.total || 1;
+                    const completed = statsResponse.completed || 0;
+                    const progressPercent = Math.round((completed / total) * 100);
+
+                    const progressBar = document.getElementById('progress-bar');
+                    const progressText = document.getElementById('progress-text');
+
+                    progressBar.style.width = progressPercent + '%';
+                    progressBar.setAttribute('aria-valuenow', progressPercent);
+                    progressText.textContent = progressPercent + '%';
+                }
+
+                // Загрузка ближайших заданий
+                const tasksResponse = await API.request('/tasks?limit=5&sort=deadline');
+                if (tasksResponse && tasksResponse.tasks) {
+                    const tasksContainer = document.getElementById('upcoming-tasks');
+                    if (tasksResponse.tasks.length > 0) {
+                        tasksContainer.innerHTML = tasksResponse.tasks.map(task => `
+                            <div class="task-item mb-3 p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${task.title}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-book me-1"></i>${task.subject_name || 'Без предмета'}
+                                            <span class="mx-2">•</span>
+                                            <i class="fas fa-clock me-1"></i>${new Date(task.deadline).toLocaleDateString()}
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-${task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'info'}">
+                                        ${task.priority === 'high' ? 'Высокий' : task.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        tasksContainer.innerHTML = `
+                            <div class="text-center py-4">
+                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                <h5>Все задачи выполнены!</h5>
+                                <p class="text-muted">Нет ближайших дедлайнов.</p>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Загрузка предметов
+                const subjectsResponse = await API.request('/subjects');
+                if (subjectsResponse) {
+                    const subjectsContainer = document.getElementById('subjects-list');
+                    if (subjectsResponse.length > 0) {
+                        subjectsContainer.innerHTML = subjectsResponse.map(subject => `
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                                <div class="d-flex align-items-center">
+                                    <div class="color-dot me-2" style="background-color: ${subject.color}; width: 12px; height: 12px; border-radius: 50%;"></div>
+                                    <span>${subject.name}</span>
+                                </div>
+                                <span class="badge bg-secondary">${subject.task_count || 0}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        subjectsContainer.innerHTML = `
+                            <div class="text-center py-3">
+                                <p class="text-muted mb-2">Нет добавленных предметов</p>
+                            </div>
+                        `;
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        loadDashboardStats();
+
+        // Обновление данных каждые 5 минут
+        setInterval(loadDashboardStats, 5 * 60 * 1000);
+    });
+</script>
+
+<style>
+    .task-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-color) !important;
+    }
+
+    .task-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .task-item.high-priority {
+        border-left-color: var(--danger-color) !important;
+    }
+
+    .task-item.medium-priority {
+        border-left-color: var(--warning-color) !important;
+    }
+
+    .color-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .progress-bar {
+        transition: width 1s ease-in-out;
+    }
+
+    .tip-of-the-day {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        border-left: 4px solid var(--primary-color);
+    }
+</style>
+{% endblock %}

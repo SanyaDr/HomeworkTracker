@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Ошибка сервера - Task Tracker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <!-- Код ошибки -->
+            <div class="mb-4">
+                <h1 class="display-1 fw-bold text-danger">500</h1>
+                <h2 class="h3 mb-3">Внутренняя ошибка сервера</h2>
+            </div>
+
+            <!-- Фотография -->
+            <div class="mb-4">
+                <div class=" border-0 overflow-hidden mb-3" style="max-width: 400px; margin: 0 auto;">
+                </div>
+            </div>
+
+            <!-- Сообщение -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <img src="/static/img/500errPhoto.png"
+                             alt="Серверная ошибка"
+                             class="img-fluid">
+                    </div>
+
+                    <!-- Основная надпись -->
+                    <h4 class="mb-4 mt-4">
+                        <i class="fas me-2"></i>
+                        В серверной сейчас кого-то оттарабанят, и всё заработает
+                    </h4>
+
+                    <!-- Вторая надпись -->
+                    <p class="text-muted mb-5" style="font-size: 0.9rem; opacity: 0.8;">
+                        немного подождите ;)
+                    </p>
+
+                    <!-- Информация -->
+                    <div class="alert alert-info mt-5">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Наша команда уже уведомлена о проблеме. Мы делаем всё возможное,
+                        чтобы восстановить работу как можно скорее.
+                    </div>
+
+                    <!-- Что делать -->
+                    <div class="mt-4">
+                        <h5 class="text-muted mb-3">Что вы можете сделать:</h5>
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            <button class="btn btn-outline-primary" onclick="window.location.reload()">
+                                <i class="fas fa-redo me-2"></i>Обновить страницу
+                            </button>
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="fas fa-home me-2"></i>Вернуться на главную
+                            </a>
+                            <a href="javascript:history.back()" class="btn btn-outline-info">
+                                <i class="fas fa-arrow-left me-2"></i>Вернуться назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Техническая информация (только для разработчиков) -->
+            <div class="text-start mt-4" id="techInfo" style="display: none;">
+                <button class="btn btn-sm btn-outline-secondary mb-3" onclick="toggleTechInfo()">
+                    <i class="fas fa-code me-1"></i>Техническая информация
+                </button>
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <pre class="mb-0 small" id="errorDetails"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Показываем техническую информацию, если есть ошибка в URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const trace = urlParams.get('trace');
+
+        if (error || trace) {
+            const techInfo = document.getElementById('techInfo');
+            const errorDetails = document.getElementById('errorDetails');
+
+            if (techInfo) techInfo.style.display = 'block';
+            if (errorDetails) {
+                let details = '';
+                if (error) details += `Ошибка: ${decodeURIComponent(error)}\n\n`;
+                if (trace) details += `Трассировка:\n${decodeURIComponent(trace)}`;
+                errorDetails.textContent = details || 'Нет дополнительной информации';
+            }
+        }
+
+        // Авто-обновление через 30 секунд
+        setTimeout(() => {
+            const refreshBtn = document.createElement('button');
+            refreshBtn.className = 'btn btn-warning btn-sm mt-3';
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Автоматическое обновление через 10 секунд...';
+            refreshBtn.onclick = () => window.location.reload();
+
+            const cardBody = document.querySelector('.card-body');
+            if (cardBody) {
+                cardBody.appendChild(refreshBtn);
+
+                setTimeout(() => {
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Обновить сейчас';
+                    refreshBtn.classList.remove('btn-warning');
+                    refreshBtn.classList.add('btn-success');
+                }, 20000);
+            }
+        }, 30000);
+    });
+
+    function toggleTechInfo() {
+        const techInfo = document.getElementById('techInfo');
+        const details = techInfo.querySelector('.card');
+        if (details.style.display === 'none') {
+            details.style.display = 'block';
+        } else {
+            details.style.display = 'none';
+        }
+    }
+
+    // Плавное мигание текста "немного подождите"
+    const waitText = document.querySelector('.text-muted.mb-4');
+    if (waitText) {
+        let opacity = 0.8;
+        let direction = -0.02;
+
+        setInterval(() => {
+            opacity += direction;
+            if (opacity <= 0.5 || opacity >= 0.9) {
+                direction = -direction;
+            }
+            waitText.style.opacity = opacity;
+        }, 100);
+    }
+</script>
+
+<style>
+    /* Анимация для кнопки обновления */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .btn-outline-primary:hover {
+        animation: pulse 0.5s ease-in-out;
+    }
+
+    /* Анимация для фотографии */
+    .card img {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover img {
+        transform: scale(1.02);
+    }
+
+    /* Стиль для текста "немного подождите" */
+    .text-muted.mb-4 {
+        font-style: italic;
+        transition: opacity 0.1s ease;
+    }
+</style>
+{% endblock %}

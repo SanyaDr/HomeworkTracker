@@ -1,5 +1,5 @@
 # backend/app/api/endpoints/users.py
-from fastapi import APIRouter, Depends, HTTPException, status, Response, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, Response, BackgroundTasks, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from pydantic import EmailStr
@@ -92,17 +92,74 @@ def login(
         httponly=True,  # Не доступен через JavaScript (защита от XSS)
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lqax",
-        secure=False
+        samesite="lax",
+        secure=False,   # TODO True for production
+        path="/"
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
 
+@router.get("/authStatus")
+def auth_status(request: Request, db: Session = Depends(get_db)):
+    """
+    Проверка авторизации через куки.
+    Всегда возвращает 200 с флагом authenticated.
+    """
+    # Берем токен из куки напрямую
+    token_cookie = request.cookies.get("access_token")
+
+    # Если нет куки - сразу возвращаем false
+    if not token_cookie:
+        return {"authenticated": False, "user": None}
+    # Убираем "Bearer " префикс если есть
+    token = token_cookie
+    if token.startswith("Bearer "):
+        token = token[7:]
+
+    # Проверяем токен
+    try:
+        from ...core import config
+        from jose import jwt
+
+        payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+        user_id = payload.get("sub")
+
+        if not user_id:
+            return {"authenticated": False, "user": None}
+
+        # Получаем пользователя из БД
+        user = crud_users.get_user_by_id(db, int(user_id))
+
+        if not user:
+            return {"authenticated": False, "user": None}
+
+        return {
+            "authenticated": True,
+            "user": {
+                "id": user.id,
+                "login": user.login,
+                "name": user.name,
+                "email": user.email
+            }
+        }
+
+    except Exception:
+        # Любая ошибка - считаем не авторизованным
+        return {"authenticated": False, "user": None}
+
+
+
+@router.post("/logout")
+def logout(response: Response):
+    """
+    Выход из системы (удаление cookies)
+    """
+    response.delete_cookie(key="access_token", path="/")
+    return {"message": "Logged out successfully"}
 
 @router.get("/profile", response_model=schemes.UserResponse)
 def read_users_me(
-        current_user: schemes.UserResponse = Depends(get_current_user)
-):
+        current_user: schemes.UserResponse = Depends(get_current_user)):
     """
     Получение информации о текущем пользователе
     """
@@ -113,8 +170,7 @@ def read_users_me(
 def update_user_me(
         user_update: schemes.UserBase,
         db: Session = Depends(get_db),
-        current_user: schemes.UserResponse = Depends(get_current_user)
-):
+        current_user: schemes.UserResponse = Depends(get_current_user)):
     """
     Обновление данных текущего пользователя
     """
@@ -137,8 +193,7 @@ def update_user_me(
 @router.delete("/profile")
 def delete_user_me(
         db: Session = Depends(get_db),
-        current_user: schemes.UserResponse = Depends(get_current_user)
-):
+        current_user: schemes.UserResponse = Depends(get_current_user)):
     """
     Удаление текущего пользователя
     """
@@ -151,13 +206,11 @@ def delete_user_me(
 
     return {"message": "User deleted successfully"}
 
-
 @router.post("/forgot-password")
 async def forgot_password(
         request: schemes.ForgotPasswordRequest,
         background_tasks: BackgroundTasks,
-        db: Session = Depends(get_db)
-):
+        db: Session = Depends(get_db)):
     """
     Отправка ссылки для восстановления пароля
     """

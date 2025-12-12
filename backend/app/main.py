@@ -4,7 +4,8 @@ import os
 from fastapi import FastAPI, Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -41,7 +42,7 @@ PROJECT_DIR = os.path.dirname(BASE_DIR)     # Корень проекта
 FRONTEND_DIR = os.path.join(PROJECT_DIR, "frontend")
 
 # Подключим статические файлы
-static_dir = os.path.join(FRONTEND_DIR, "/static")
+static_dir = os.path.join(FRONTEND_DIR, "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 else:
@@ -76,6 +77,101 @@ def startup_event():
     init_db()
     print("База данных проинициализирована!")
 
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    try:
+        response = await call_next(request)
+
+        excludedPaths = [
+            "/api/users/checkStatus",
+            "/api/health",
+            "/login",
+            "/register"
+        ]
+
+        if any(request.url.path.startswith(path) for path in excludedPaths):
+            return response
+
+        # Если 401 ошибка и это не API запрос - перенаправляем на логин
+        if response.status_code == 401 and not request.url.path.startswith("/api/"):
+            return RedirectResponse(url="/login")
+
+        return response
+
+    except HTTPException as exc:
+        if exc.status_code == 401 and not request.url.path.startswith("/api/"):
+            return RedirectResponse(url="/login")
+        raise exc
+
+# ==================== СБРОС ПАРОЛЯ ==========================
+@app.get("/reset-password")
+async def reset_password_page(request: Request, token: str = None):
+    """Страница сброса пароля"""
+    return templates.TemplateResponse(
+        "resetPassword.html",
+        {"request": request, "token": token}
+    )
+
+# ==================== ОБРАБОТЧИКИ ОШИБОК ====================
+
+# Создайте функцию для обработки ошибок
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    templates = request.app.state.templates
+    if templates:
+        return templates.TemplateResponse(
+            "errors/404.html",
+            {"request": request},
+            status_code=404
+        )
+    return JSONResponse(
+        status_code=404,
+        content={"detail": "Not Found"}
+    )
+
+@app.exception_handler(500)
+async def server_error_handler(request: Request, exc):
+    templates = request.app.state.templates
+    if templates:
+        return templates.TemplateResponse(
+            "errors/500.html",
+            {"request": request},
+            status_code=500
+        )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error"}
+    )
+
+# # Для отлавливания всех исключений
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    templates = request.app.state.templates
+    if templates:
+        # Передаем информацию об ошибке в шаблон
+        import traceback
+        error_info = {
+            "error": str(exc),
+            "trace": traceback.format_exc()
+        }
+        return templates.TemplateResponse(
+            "errors/500.html",
+            {
+                "request": request,
+                "error_info": error_info
+            },
+            status_code=500
+        )
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Internal Server Error",
+            "error": str(exc)
+        }
+    )
+
+
 # @app.get("/", response_class=HTMLResponse)
 # async def homePage(request: Request):
 #     return templates.TemplateResponse("index.html", {"request": request})
@@ -101,38 +197,3 @@ def startup_event():
 #         "timestamp": datetime.utcnow().isoformat(),
 #         "version": "1.0.0"
 #     })
-
-# ==================== СБРОС ПАРОЛЯ ==========================
-@app.get("/reset-password")
-async def reset_password_page(request: Request, token: str = None):
-    """Страница сброса пароля"""
-    return templates.TemplateResponse(
-        "resetPassword.html",
-        {"request": request, "token": token}
-    )
-
-# ==================== ОБРАБОТЧИКИ ОШИБОК ====================
-
-@app.exception_handler(404)
-async def not_found_exception_handler(request: Request, exc):
-    """
-    Обработка 404 ошибок
-    """
-    if request.url.path.startswith("/api/"):
-        return JSONResponse(
-            status_code=404,
-            content={"detail": "Not Found", "path": request.url.path}
-        )
-
-    # Для фронтенда возвращаем JSON с информацией об ошибке
-    # или можно создать специальный шаблон для 404
-    # TODO добавь ту фотку с телеги
-    return JSONResponse(
-        status_code=404,
-        content={
-            "error": "Page not found",
-            "path": request.url.path,
-            "suggestions": ["Go to home page", "Check the URL"]
-        }
-    )
-

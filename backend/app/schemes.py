@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 from datetime import datetime
 from typing import Optional, List
 from enum import Enum
@@ -154,3 +154,23 @@ class TaskListResponse(BaseModel):
     """Схема для списка заданий с пагинацией"""
     tasks: List[TaskWithSubjectResponse]
     pagination: PaginationResponse
+
+# ================ RESET PASSWORD ====================
+
+class ForgotPasswordRequest(BaseModel):
+    """Схема для запроса восстановления пароля"""
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    """Схема для сброса пароля"""
+    token: str
+    new_password: str = Field(..., min_length=8, max_length=72)
+    confirm_password: str = Field(..., min_length=8, max_length=72)
+
+    @field_validator('confirm_password')
+    @classmethod
+    def passwords_match(cls, v, info):
+        if 'new_password' in info.data and v != info.data['new_password']:
+            raise ValueError('Пароли не совпадают')
+        return v
+

@@ -14,13 +14,13 @@ sys.path.insert(0, backend_path)
 # print(f"[DEBUG] Python path: {sys.path}")
 
 try:
-    from app.core import startConfig as cfg
+    from app.core import config as cfg
     print("[DEBUG] Import successful!")
 except ImportError as e:
     print(f"[DEBUG] Import error: {e}")
     # Попробуем другой путь
     sys.path.insert(0, project_root)
-    from backend.app.core import startConfig as cfg
+    from backend.app.core import config as cfg
 
 
 def main():

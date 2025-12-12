@@ -6,3 +6,4 @@
 /test_*.http/
 
 .env
+/database/homework_tracker.db

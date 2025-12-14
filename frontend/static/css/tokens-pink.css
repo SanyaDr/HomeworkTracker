@@ -1,0 +1,43 @@
+/* tokens-pink.css — пастельно-розовая тема + "картинки" (SVG data-uri) */
+:root{
+  /* Акценты */
+  --primary-color:#ff6fae;     /* розовый акцент */
+  --secondary-color:#c77dff;   /* сиреневый второй акцент */
+  --success-color:#40c9a2;
+  --info-color:#6bd5ff;
+  --warning-color:#ffd166;
+  --danger-color:#ff4d6d;
+
+  /* Текст/поверхности */
+  --text-0:#2a1f2a;
+  --text-1:#4b3b4b;
+  --muted:#6f5f6f;
+
+  --card:#ffffffc9;
+  --card-solid:#ffffff;
+  --stroke:#f1d7e6;
+  --stroke-2:#e9c2d9;
+
+  --radius:16px;
+  --radius-lg:22px;
+
+  --shadow-sm:0 6px 18px rgba(70,20,50,.10);
+  --shadow-md:0 14px 40px rgba(70,20,50,.14);
+  --shadow-lg:0 22px 70px rgba(70,20,50,.18);
+
+  /* "Картинки" — розовая сетка */
+  --img-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M120 0H0V120' fill='none' stroke='rgba(255,111,174,0.12)' stroke-width='1'/%3E%3Cpath d='M60 0V120M0 60H120' fill='none' stroke='rgba(199,125,255,0.10)' stroke-width='1'/%3E%3C/svg%3E");
+
+  /* "Картинки" — лёгкий шум */
+  --img-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E");
+
+  /* Волна для hero/шапки */
+  --img-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 320'%3E%3Cpath d='M0 220c140-70 280-105 420-105s280 35 420 105 280 105 420 35 280-210 420-210v175H0z' fill='rgba(255,111,174,0.18)'/%3E%3Cpath d='M0 250c160-80 320-120 480-120s320 40 480 120 320 120 480 40 320-240 480-240v200H0z' fill='rgba(199,125,255,0.12)'/%3E%3C/svg%3E");
+
+  --glass-blur: blur(10px);
+
+  /* Фоновые базовые цвета */
+  --bg-a:#fff0f6;
+  --bg-b:#fbe7ff;
+  --bg-c:#fff7fb;
+}

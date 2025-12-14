@@ -1,184 +1,36 @@
-:root {
-    --primary-color: #4361ee;
-    --secondary-color: #3a0ca3;
-    --success-color: #4cc9f0;
-    --danger-color: #f72585;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
+/* base.css — пастельно-розовый фон + типографика */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+
+body{
+  font-family:'Nunito',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text-0);
+  min-height:100vh;
+
+  /* Фон: розово-лиловые пятна + градиент + сетка + шум */
+  background-image:
+    radial-gradient(1100px 700px at 10% 0%, rgba(255,111,174,.26), transparent 60%),
+    radial-gradient(900px 600px at 90% 12%, rgba(199,125,255,.20), transparent 55%),
+    radial-gradient(700px 500px at 50% 100%, rgba(255,214,225,.55), transparent 60%),
+    linear-gradient(135deg, var(--bg-a) 0%, var(--bg-b) 45%, var(--bg-c) 100%),
+    var(--img-grid),
+    var(--img-noise);
+  background-repeat:no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat;
+  background-size:auto, auto, auto, auto, 120px 120px, 160px 160px;
+  background-attachment:fixed, fixed, fixed, fixed, fixed, fixed;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+a{ text-decoration:none; color: inherit; }
+a:hover{ text-decoration:underline; }
+
+::selection{ background: rgba(255,111,174,.25); }
+
+:focus-visible{
+  outline:3px solid rgba(255,111,174,.35);
+  outline-offset:2px;
+  border-radius:10px;
 }
 
-body {
-    font-family: 'Nunito', sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    min-height: 100vh;
-    color: var(--dark-color);
-}
-
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: var(--primary-color) !important;
-}
-
-.navbar-brand i {
-    color: var(--secondary-color);
-    margin-right: 8px;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    padding: 10px 25px;
-    font-weight: 600;
-}
-
-.btn-primary:hover {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
-}
-
-.btn-outline-primary {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.btn-outline-primary:hover {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.feature-icon {
-    font-size: 2.5rem;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-}
-
-footer {
-    background-color: var(--dark-color);
-    color: white;
-    margin-top: auto;
-}
-
-.auth-container {
-    min-height: calc(100vh - 200px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 0;
-}
-
-.auth-card {
-    width: 100%;
-    padding: 2.5rem;
-}
-
-.form-control {
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
-    padding: 12px 15px;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
-}
-
-.form-label {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.alert {
-    border-radius: 10px;
-    border: none;
-}
-
-.hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
-    border-radius: 0 0 30px 30px;
-    padding: 4rem 0;
-    margin-bottom: 3rem;
-}
-
-.hero-title {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-}
-
-.hero-subtitle {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    margin-bottom: 2rem;
-}
-
-.stat-card {
-    text-align: center;
-    padding: 1.5rem;
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.stat-label {
-    color: #6c757d;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.navbar-nav.ms-auto {
-    display: flex;
-    align-items: center;
-}
-
-@media (max-width: 768px) {
-    .hero-title {
-        font-size: 2rem;
-    }
-
-    .auth-card {
-        padding: 1.5rem;
-    }
-
-    .navbar-nav.ms-auto {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
 }

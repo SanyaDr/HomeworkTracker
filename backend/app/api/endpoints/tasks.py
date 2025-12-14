@@ -25,7 +25,7 @@ def create_task(
     subject = crud_subjects.get_subject_by_id(db, task.subject_id, current_user.id)
     if not subject:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Subject not found"
         )
 

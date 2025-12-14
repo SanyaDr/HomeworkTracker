@@ -47,7 +47,6 @@ class UserResponse(UserBase):
 class SubjectBase(BaseModel):
     """Базовая схема предмета"""
     name: str = Field(..., min_length=1, max_length=100)
-    color: str = Field(default="#3B82F6", pattern="^#[0-9A-Fa-f]{6}$")
 
 class SubjectCreate(SubjectBase):
     """Схема для создания предмета"""

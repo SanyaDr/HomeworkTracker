@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from typing import List, Optional
 from datetime import datetime
 
-
+# TODO Поправь временную зону datetime
 def create_task(db: Session, task, user_id: int) :
     """
     Создание новой задачи

@@ -155,6 +155,7 @@ def logout(response: Response):
     Выход из системы (удаление cookies)
     """
     response.delete_cookie(key="access_token", path="/")
+    # TODO сделай переход на главную страницу
     return {"message": "Logged out successfully"}
 
 @router.get("/profile", response_model=schemes.UserResponse)

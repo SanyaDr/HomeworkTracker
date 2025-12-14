@@ -12,192 +12,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --success-color: #4cc9f0;
-            --danger-color: #f72585;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Nunito', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            color: var(--dark-color);
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--primary-color) !important;
-        }
-
-        .navbar-brand i {
-            color: var(--secondary-color);
-            margin-right: 8px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 10px 25px;
-            font-weight: 600;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        footer {
-            background-color: var(--dark-color);
-            color: white;
-            margin-top: auto;
-        }
-
-        .auth-container {
-            min-height: calc(100vh - 200px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 0;
-        }
-
-        .auth-card {
-            width: 100%;
-            padding: 2.5rem;
-        }
-
-        .form-control {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 12px 15px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
-        }
-
-        .form-label {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            border-radius: 0 0 30px 30px;
-            padding: 4rem 0;
-            margin-bottom: 3rem;
-        }
-
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 1.5rem;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .navbar-nav.ms-auto {
-            display: flex;
-            align-items: center;
-        }
-
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .auth-card {
-                padding: 1.5rem;
-            }
-
-            .navbar-nav.ms-auto {
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="static/css/base.css">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -273,10 +88,58 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
+    // Легковесная проверка авторизации (без редиректов)
+    async function checkAuthLight() {
+        try {
+            const response = await fetch('/api/users/authStatus', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data.authenticated;
+            }
+            return false;
+        } catch (error) {
+            console.debug('Auth check failed:', error.message);
+            return false;
+        }
+    }
+
+    // Загрузка данных профиля (только для авторизованных)
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('/api/users/authStatus', {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                if (data.authenticated && data.user) {
+                    // Обновляем UI
+                    const userName = document.getElementById('user-name');
+                    const userAvatar = document.getElementById('user-avatar');
+
+                    if (userName) userName.textContent = data.user.name;
+                    if (userAvatar) userAvatar.textContent = data.user.name.charAt(0).toUpperCase();
+
+                    // Сохраняем в localStorage для быстрого доступа
+                    // localStorage.setItem('user_data', JSON.stringify(data.user));
+
+                    return data.user;
+                }
+            }
+        } catch (error) {
+            console.debug('Не удалось загрузить статус авторизации:', error.message);
+        }
+        return null;
+    }
+
     // API функции
     const API = {
         baseURL: '/api',
-
         async request(endpoint, method = 'GET', data = null) {
             const config = {
                 method,

@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import List, Optional
-from datetime import datetime
 
-# TODO Поправь временную зону datetime
+from ..core.config import getServerTime
+
 def create_task(db: Session, task, user_id: int) :
     """
     Создание новой задачи
@@ -66,7 +66,7 @@ def get_tasks(
 
     # Автоматическая пометка просроченных задач
     if include_overdue:
-        now = datetime.utcnow()
+        now = getServerTime()
         # Находим задачи, которые просрочены но ещё в статусе ASSIGNED
         overdue_tasks = query.filter(
             Task.status == enums.TaskStatus.ASSIGNED,
@@ -113,9 +113,6 @@ def update_task(
     for field, value in update_data.items():
         setattr(db_task, field, value)
 
-    # Обновляем время изменения
-    # db_task.updated_at = datetime.utcnow()  # Если добавите поле в модель
-
     db.commit()
     db.refresh(db_task)
     return db_task
@@ -146,14 +143,14 @@ def complete_task(db: Session, task_id: int, user_id: Optional[int] = None):
     from ..model import enums  # ← относительный импорт
 
     db_task.status = enums.TaskStatus.COMPLETED
-    # db_task.updated_at = datetime.utcnow()  # Если добавите поле в модель
+    # db_task.updated_at = getServerTime()  # Если добавите поле в модель
 
     db.commit()
     db.refresh(db_task)
     return db_task
 
 
-def get_user_tasks_count(db: Session, user_id: int) -> dict:
+def get_user_tasks_stats(db: Session, user_id: int) -> dict:
     """
     Получение статистики по задачам пользователя
     """
@@ -175,11 +172,20 @@ def get_user_tasks_count(db: Session, user_id: int) -> dict:
         Task.user_id == user_id,
         Task.deadline.isnot(None)
     ).count()
+    # Добавляем просроченные задачи (опционально)
+    now = getServerTime()
+    overdue = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == enums.TaskStatus.ASSIGNED,
+        Task.deadline.isnot(None),
+        Task.deadline < now
+    ).count()
 
     return {
         "total": total,
         "completed": completed,
         "assigned": assigned,
         "with_deadline": with_deadline,
-        "completion_rate": completed / total if total > 0 else 0
+        "completion_rate": completed / total if total > 0 else 0,
+        "overdue": overdue,
     }

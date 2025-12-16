@@ -415,8 +415,9 @@
 
                 try {
                     // Отправляем запрос на сервер
-                    const response = await API.request('/users', 'POST', formData);
 
+                    const response = await API.request('/users/register', 'POST', formData);
+                    print(formdata)
                     // Показываем успех
                     registerSuccess.innerHTML = `
                         <i class="fas fa-check-circle me-2"></i>

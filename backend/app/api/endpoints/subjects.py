@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 from typing import List
 
 # Импорты с относительными путями
-from ...core.database import get_db
-from ...crud import subjects as crud_subjects
 from ... import schemes
+from ...crud import subjects as crud_subjects
+from ...core.database import get_db
 from ...core.auth import get_current_user
+from ...core.config import getServerTime
 
 router = APIRouter(prefix="/subjects", tags=["subjects"])
 
@@ -160,8 +161,7 @@ def get_subject_stats(
     with_deadline = sum(1 for task in tasks if task.deadline is not None)
 
     # Просроченные задачи
-    from datetime import datetime
-    now = datetime.utcnow()
+    now = getServerTime()
     overdue = sum(1 for task in tasks
                   if task.status == "assigned"
                   and task.deadline

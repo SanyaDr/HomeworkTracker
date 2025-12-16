@@ -3,7 +3,6 @@
 """
 import pytest
 from fastapi.testclient import TestClient
-from datetime import datetime
 
 class TestCRUD:
     """Тесты основных CRUD операций"""

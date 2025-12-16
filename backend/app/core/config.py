@@ -1,5 +1,8 @@
 
 import os
+from datetime import datetime
+
+import pytz
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -19,6 +22,11 @@ log_level = os.getenv("LOG_LEVEL", "info")
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+
+# Временная зона
+MOSCOW_TZ = pytz.timezone('Europe/Moscow')
+def getServerTime() -> datetime:
+    return datetime.now(MOSCOW_TZ)
 
 # def init_db():
 #     """Инициализация базы данных"""

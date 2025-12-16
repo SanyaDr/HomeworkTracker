@@ -10,9 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.api.endpoints import api_routers, frontend_routers
-from app.core import init_db, get_db
-from app import schemes
-from datetime import datetime
+from app.core import init_db
 
 app = FastAPI(
     version="0.0.2",
@@ -82,6 +80,7 @@ async def auth_middleware(request: Request, call_next):
     try:
         response = await call_next(request)
 
+        # TODO перенести к конфиг
         excludedPaths = [
             "/api/users/checkStatus",
             "/api/health",
@@ -170,30 +169,3 @@ async def general_exception_handler(request: Request, exc: Exception):
             "error": str(exc)
         }
     )
-
-
-# @app.get("/", response_class=HTMLResponse)
-# async def homePage(request: Request):
-#     return templates.TemplateResponse("index.html", {"request": request})
-
-
-# ==================== API ЭНДПОИНТЫ ====================
-#
-# @app.get("/api/health")
-# async def health_check(db: Session = Depends(get_db)):
-#     """
-#     Проверка здоровья приложения
-#     """
-#     try:
-#         db.execute("SELECT 1")
-#         db_status = "connected"
-#     except Exception as e:
-#         db_status = f"error: {str(e)}"
-#
-#     return JSONResponse({
-#         "status": "healthy",
-#         "service": "task-tracker",
-#         "database": db_status,
-#         "timestamp": datetime.utcnow().isoformat(),
-#         "version": "1.0.0"
-#     })

@@ -1,8 +1,11 @@
+# backend/app/crud/tasks.py
+
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import List, Optional
 
 from ..core.config import getServerTime
+from ..core.config import getServerTime, MOSCOW_TZ
 
 def create_task(db: Session, task, user_id: int) :
     """
@@ -149,14 +152,13 @@ def complete_task(db: Session, task_id: int, user_id: Optional[int] = None):
     db.refresh(db_task)
     return db_task
 
-
 def get_user_tasks_stats(db: Session, user_id: int) -> dict:
     """
     Получение статистики по задачам пользователя
     """
-    from .. import schemes  # ← относительный импорт
-    from ..model import Task, enums  # ← относительный импорт
+    from ..model import Task, enums
 
+    # Общая статистика
     total = db.query(Task).filter(Task.user_id == user_id).count()
     completed = db.query(Task).filter(
         Task.user_id == user_id,
@@ -167,18 +169,47 @@ def get_user_tasks_stats(db: Session, user_id: int) -> dict:
         Task.status == enums.TaskStatus.ASSIGNED
     ).count()
 
-    # Задачи с дедлайном (опционально)
+    # Задачи с дедлайном
     with_deadline = db.query(Task).filter(
         Task.user_id == user_id,
         Task.deadline.isnot(None)
     ).count()
-    # Добавляем просроченные задачи (опционально)
+
+    # Просроченные задачи - правильно сравниваем
     now = getServerTime()
-    overdue = db.query(Task).filter(
+
+    overdue_query = db.query(Task).filter(
         Task.user_id == user_id,
         Task.status == enums.TaskStatus.ASSIGNED,
-        Task.deadline.isnot(None),
-        Task.deadline < now
+        Task.deadline.isnot(None)
+    )
+
+    overdue = 0
+    for task in overdue_query.all():
+        if task.deadline is not None:
+            # Приводим deadline к тому же часовому поясу
+            if task.deadline.tzinfo is None:
+                deadline_localized = MOSCOW_TZ.localize(task.deadline)
+            else:
+                deadline_localized = task.deadline.astimezone(MOSCOW_TZ)
+
+            if deadline_localized < now:
+                overdue += 1
+
+    # Статистика по приоритетам
+    high_priority = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.priority == "high"
+    ).count()
+
+    medium_priority = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.priority == "medium"
+    ).count()
+
+    low_priority = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.priority == "low"
     ).count()
 
     return {
@@ -188,4 +219,9 @@ def get_user_tasks_stats(db: Session, user_id: int) -> dict:
         "with_deadline": with_deadline,
         "completion_rate": completed / total if total > 0 else 0,
         "overdue": overdue,
+        "priority_stats": {
+            "high": high_priority,
+            "medium": medium_priority,
+            "low": low_priority
+        }
     }

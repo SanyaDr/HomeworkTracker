@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}Мои предметы - Task Tracker{% endblock %}
+
+{% block extra_css %}
+<style>
+    .subject-card {
+        border-left: 4px solid;
+        transition: all 0.3s ease;
+    }
+
+    .subject-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .color-preview {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        display: inline-block;
+        cursor: pointer;
+        border: 2px solid #dee2e6;
+    }
+
+    .color-preview:hover {
+        transform: scale(1.1);
+    }
+
+    .subject-stats {
+        font-size: 0.85rem;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+    }
+
+    .color-palette {
+        display: flex;
+        gap: 5px;
+        margin-top: 5px;
+    }
+
+    .palette-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .palette-color:hover {
+        transform: scale(1.2);
+    }
+
+    .palette-color.selected {
+        border: 2px solid #333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Заголовок -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1">Мои предметы</h1>
+            <p class="text-muted mb-0">Организуйте задания по предметам с помощью цветовых меток</p>
+        </div>
+        <div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                <i class="fas fa-plus me-2"></i>Добавить предмет
+            </button>
+        </div>
+    </div>
+
+    <!-- Список предметов -->
+    <div class="row" id="subjectsContainer">
+        <!-- Предметы загружаются через JavaScript -->
+    </div>
+
+    <!-- Пустое состояние -->
+    <div class="empty-state text-center d-none" id="emptyState">
+        <div class="mb-4">
+            <i class="fas fa-book-open fa-3x text-muted"></i>
+        </div>
+        <h4 class="mb-3">Предметов пока нет</h4>
+        <p class="text-muted mb-4">
+            Добавьте первый предмет, чтобы организовать свои задания.<br>
+            Каждому предмету можно присвоить цвет для удобства навигации.
+        </p>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+            <i class="fas fa-plus me-2"></i>Добавить первый предмет
+        </button>
+    </div>
+</div>
+
+<!-- Модальное окно добавления предмета -->
+<div class="modal fade" id="addSubjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addSubjectForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить новый предмет</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="subjectName" class="form-label">Название предмета</label>
+                        <input type="text" class="form-control" id="subjectName" required
+                               placeholder="Например: Математика, Физика, Программирование">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Цвет предмета</label>
+                        <div class="d-flex align-items-center">
+                            <div class="color-preview me-3" id="colorPreview"
+                                 style="background-color: #3B82F6"></div>
+                            <input type="color" class="form-control form-control-color"
+                                   id="subjectColor" value="#3B82F6" title="Выберите цвет">
+                        </div>
+
+                        <!-- Палитра быстрого выбора -->
+                        <div class="color-palette mt-3">
+                            <div class="palette-color" style="background-color: #3B82F6"
+                                 data-color="#3B82F6"></div>
+                            <div class="palette-color" style="background-color: #10B981"
+                                 data-color="#10B981"></div>
+                            <div class="palette-color" style="background-color: #F59E0B"
+                                 data-color="#F59E0B"></div>
+                            <div class="palette-color" style="background-color: #EF4444"
+                                 data-color="#EF4444"></div>
+                            <div class="palette-color" style="background-color: #8B5CF6"
+                                 data-color="#8B5CF6"></div>
+                            <div class="palette-color" style="background-color: #06B6D4"
+                                 data-color="#06B6D4"></div>
+                            <div class="palette-color" style="background-color: #EC4899"
+                                 data-color="#EC4899"></div>
+                            <div class="palette-color" style="background-color: #6366F1"
+                                 data-color="#6366F1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Добавить предмет</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления -->
+<div class="modal fade" id="deleteSubjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Удаление предмета</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот предмет?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Все задания, связанные с этим предметом, будут перемещены в категорию "Без предмета".
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteSubject">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let subjects = [];
+    let subjectToDelete = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadSubjects();
+        setupEventListeners();
+    });
+
+    // Загрузка предметов
+    async function loadSubjects() {
+        try {
+            showLoading();
+
+            subjects = await API.request('/subjects');
+
+            if (subjects && subjects.length > 0) {
+                renderSubjects(subjects);
+                document.getElementById('emptyState').classList.add('d-none');
+            } else {
+                document.getElementById('subjectsContainer').innerHTML = '';
+                document.getElementById('emptyState').classList.remove('d-none');
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки предметов:', error);
+            showNotification('Не удалось загрузить предметы', 'danger');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Отображение предметов
+    function renderSubjects(subjectsList) {
+        const container = document.getElementById('subjectsContainer');
+
+        if (!subjectsList || subjectsList.length === 0) {
+            container.innerHTML = '';
+            document.getElementById('emptyState').classList.remove('d-none');
+            return;
+        }
+
+        let html = '';
+
+        subjectsList.forEach(subject => {
+            // Получаем статистику по предмету
+            const stats = getSubjectStats(subject);
+
+            html += `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card subject-card h-100" style="border-left-color: ${subject.color}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1">
+                                        <span class="subject-dot me-2" 
+                                              style="background-color: ${subject.color}"></span>
+                                        ${escapeHtml(subject.name)}
+                                    </h5>
+                                    <small class="text-muted">
+                                        Добавлен: ${formatDate(new Date(subject.created_at))}
+                                    </small>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                            data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <button class="dropdown-item edit-subject-btn" 
+                                                    data-subject-id="${subject.id}">
+                                                <i class="fas fa-edit me-2"></i>Изменить цвет
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item text-danger delete-subject-btn" 
+                                                    data-subject-id="${subject.id}">
+                                                <i class="fas fa-trash me-2"></i>Удалить
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="subject-stats">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Всего заданий:</span>
+                                    <span class="fw-bold">${stats.total}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Выполнено:</span>
+                                    <span class="text-success fw-bold">${stats.completed}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>В процессе:</span>
+                                    <span class="text-warning fw-bold">${stats.assigned}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 pt-3 border-top">
+                                <a href="/tasks?subject_id=${subject.id}" 
+                                   class="btn btn-sm btn-outline-primary w-100">
+                                    <i class="fas fa-tasks me-2"></i>Смотреть задания
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        attachSubjectEventListeners();
+    }
+
+    // Получение статистики по предмету
+    function getSubjectStats(subject) {
+        // В реальном приложении здесь был бы запрос к API
+        // Для примера используем фиктивные данные
+        return {
+            total: Math.floor(Math.random() * 20),
+            completed: Math.floor(Math.random() * 10),
+            assigned: Math.floor(Math.random() * 10)
+        };
+    }
+
+    // Настройка событий
+    function setupEventListeners() {
+        // Форма добавления предмета
+        const addForm = document.getElementById('addSubjectForm');
+        if (addForm) {
+            addForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const subjectData = {
+                    name: document.getElementById('subjectName').value.trim(),
+                    color: document.getElementById('subjectColor').value
+                };
+
+                try {
+                    await API.request('/subjects', 'POST', subjectData);
+                    showNotification('Предмет успешно добавлен', 'success');
+
+                    // Закрываем модальное окно и очищаем форму
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addSubjectModal'));
+                    modal.hide();
+                    addForm.reset();
+                    document.getElementById('colorPreview').style.backgroundColor = '#3B82F6';
+
+                    // Перезагружаем список
+                    await loadSubjects();
+
+                } catch (error) {
+                    showNotification(`Ошибка при добавлении предмета: ${error.message}`, 'danger');
+                }
+            });
+        }
+
+        // Палитра цветов
+        document.querySelectorAll('.palette-color').forEach(color => {
+            color.addEventListener('click', function() {
+                const colorValue = this.dataset.color;
+                document.getElementById('subjectColor').value = colorValue;
+                document.getElementById('colorPreview').style.backgroundColor = colorValue;
+
+                // Подсветка выбранного цвета
+                document.querySelectorAll('.palette-color').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        // Просмотр цвета
+        const colorPreview = document.getElementById('colorPreview');
+        const colorInput = document.getElementById('subjectColor');
+
+        if (colorPreview && colorInput) {
+            colorPreview.addEventListener('click', () => colorInput.click());
+            colorInput.addEventListener('input', function() {
+                colorPreview.style.backgroundColor = this.value;
+            });
+        }
+
+        // Удаление предмета
+        document.getElementById('confirmDeleteSubject')?.addEventListener('click', async function() {
+            if (!subjectToDelete) return;
+
+            try {
+                await API.request(`/subjects/${subjectToDelete}`, 'DELETE');
+                showNotification('Предмет успешно удален', 'success');
+                await loadSubjects();
+            } catch (error) {
+                showNotification('Ошибка при удалении предмета', 'danger');
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteSubjectModal'));
+            modal.hide();
+            subjectToDelete = null;
+        });
+    }
+
+    function attachSubjectEventListeners() {
+        // Кнопки удаления
+        document.querySelectorAll('.delete-subject-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                subjectToDelete = this.dataset.subjectId;
+                const modal = new bootstrap.Modal(document.getElementById('deleteSubjectModal'));
+                modal.show();
+            });
+        });
+
+        // Кнопки редактирования (упрощенная версия)
+        document.querySelectorAll('.edit-subject-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const subjectId = this.dataset.subjectId;
+                const subject = subjects.find(s => s.id == subjectId);
+
+                if (subject) {
+                    const newColor = prompt('Введите новый цвет в формате #RRGGBB:', subject.color);
+                    if (newColor && /^#[0-9A-F]{6}$/i.test(newColor)) {
+                        updateSubjectColor(subjectId, newColor);
+                    } else if (newColor) {
+                        showNotification('Неверный формат цвета. Используйте формат #RRGGBB', 'warning');
+                    }
+                }
+            });
+        });
+    }
+
+    // Обновление цвета предмета
+    async function updateSubjectColor(subjectId, color) {
+        try {
+            await API.request(`/subjects/${subjectId}`, 'PATCH', { color });
+            showNotification('Цвет предмета обновлен', 'success');
+            await loadSubjects();
+        } catch (error) {
+            showNotification('Ошибка при обновлении цвета', 'danger');
+        }
+    }
+
+    // Вспомогательные функции
+    function formatDate(date) {
+        return date.toLocaleDateString('ru-RU');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showLoading() {
+        const container = document.getElementById('subjectsContainer');
+        container.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p class="mt-2 text-muted">Загружаем предметы...</p>
+            </div>
+        `;
+    }
+
+    function hideLoading() {
+        // Контент уже заменится
+    }
+</script>
+{% endblock %}

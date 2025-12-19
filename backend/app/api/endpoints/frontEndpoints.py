@@ -107,6 +107,19 @@ async def tasks_page(
     return templates.TemplateResponse("tasks.html", context)
 
 
+@router.get("/tasks/add", response_class=HTMLResponse)
+async def add_task_page(
+        request: Request,
+        current_user: schemes.UserResponse = Depends(get_current_user),
+        templates = Depends(get_templates)
+):
+    context = {
+        "request": request,
+        "user": current_user,
+        "current_year": getServerTime().year
+    }
+    return templates.TemplateResponse( "taskAdd.html", context )
+
 @router.get("/subjects", response_class=HTMLResponse)
 async def subjects_page(
         request: Request,

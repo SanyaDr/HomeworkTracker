@@ -15,9 +15,9 @@ sys.path.insert(0, backend_path)
 
 try:
     from app.core import config as cfg
-    print("[DEBUG] Import successful!")
+    # print("[DEBUG] Import successful!")
 except ImportError as e:
-    print(f"[DEBUG] Import error: {e}")
+    # print(f"[DEBUG] Import error: {e}")
     # Попробуем другой путь
     sys.path.insert(0, project_root)
     from backend.app.core import config as cfg

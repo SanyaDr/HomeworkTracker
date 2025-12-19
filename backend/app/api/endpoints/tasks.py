@@ -62,7 +62,7 @@ def get_tasks(
     for task in db_tasks:
         task_dict = schemes.TaskResponse.model_validate(task).model_dump()
         task_dict["subject_name"] = task.subject.name
-        task_dict["subject_color"] = task.subject.color
+        # task_dict["subject_color"] = task.subject.color
         tasks_with_subjects.append(
             schemes.TaskWithSubjectResponse(**task_dict)
         )
@@ -97,7 +97,7 @@ def get_task(
     # Преобразуем в схему с информацией о предмете
     task_dict = schemes.TaskResponse.model_validate(db_task).model_dump()
     task_dict["subject_name"] = db_task.subject.name
-    task_dict["subject_color"] = db_task.subject.color
+    # task_dict["subject_color"] = db_task.subject.color
 
     return schemes.TaskWithSubjectResponse(**task_dict)
 
@@ -156,6 +156,7 @@ def complete_task(
         )
     return db_task
 
+# В backend/app/api/endpoints/tasks.py, обновите get_tasks_summary:
 
 @router.get("/stats/summary")
 def get_tasks_summary(
@@ -166,5 +167,12 @@ def get_tasks_summary(
     Получение статистики по задачам
     """
     stats = crud_tasks.get_user_tasks_stats(db, current_user.id)
+
+    # Добавляем дополнительную информацию
+    from ...crud import subjects as crud_subjects
+    subjects = crud_subjects.get_user_subjects(db, current_user.id)
+
+    stats["total_subjects"] = len(subjects)
+    stats["productivity_score"] = int(stats["completion_rate"] * 100)
 
     return stats

@@ -52,28 +52,28 @@ else:
 # app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 # Настраиваем Jinja2 шаблоны
 templates_dir = os.path.join(FRONTEND_DIR, "templates")
-print("Trying load templates from:", templates_dir)
+# print("Trying load templates from:", templates_dir)
 if os.path.exists(templates_dir):
     templates = Jinja2Templates(directory=templates_dir)
-    print(f"Templates loaded from: {templates_dir}")
+    # print(f"Templates loaded from: {templates_dir}")
 else:
     # Fallback на шаблоны в backend/frontend
     backend_templates_dir = os.path.join(BASE_DIR, "frontend", "templates")
     if os.path.exists(backend_templates_dir):
         templates = Jinja2Templates(directory=backend_templates_dir)
-        print(f"Templates loaded from: {backend_templates_dir}")
+        # print(f"Templates loaded from: {backend_templates_dir}")
     else:
         templates = None
-        print("Warning: Templates directory not found")
+        # print("Warning: Templates directory not found")
 
 app.state.templates = templates
 
 # Инициализация базы данных при запуске
 @app.on_event("startup")
 def startup_event():
-    print("Инициализация базы данных...")
+    # print("Инициализация базы данных...")
     init_db()
-    print("База данных проинициализирована!")
+    # print("База данных проинициализирована!")
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
@@ -119,7 +119,7 @@ async def not_found_handler(request: Request, exc):
     templates = request.app.state.templates
     if templates:
         return templates.TemplateResponse(
-            "errors/404.html",
+            "/errors/404.html",
             {"request": request},
             status_code=404
         )

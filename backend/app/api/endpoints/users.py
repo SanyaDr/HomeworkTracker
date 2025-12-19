@@ -6,6 +6,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
+from ...core.config import getServerTime, MOSCOW_TZ
 from ...core.database import get_db
 from ...crud import users as crud_users
 from ... import schemes
@@ -38,7 +39,7 @@ def create_user(
         user: schemes.UserCreate,
         db: Session = Depends(get_db)
 ):
-    print("Зашел в create_user")
+    # print("Зашел в create_user")
     """
     Регистрация нового пользователя
     """
@@ -57,7 +58,7 @@ def create_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
-    print("прошел проверки create_user")
+    # print("прошел проверки create_user")
     return crud_users.create_user(db, user)
 
 
@@ -70,7 +71,7 @@ def login(
     """
     Аутентификация пользователя
     """
-    print("зашел в post login endpoints/users")
+    # print("зашел в post login endpoints/users")
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -84,7 +85,7 @@ def login(
         data={"sub": str(user.id)},
         expires_delta=access_token_expires
     )
-    print("Начал ставить куки")
+    # print("Начал ставить куки")
     # Устанавливаем токен в куки
     response.set_cookie(
         key="access_token",
@@ -249,7 +250,7 @@ async def forgot_password(
 
 @router.post("/reset-password")
 async def reset_password(
-        request: schemes.ResetPasswordRequest,
+        request: schemes.ResetPasswordTokenRequest,
         db: Session = Depends(get_db)
 ):
     """
@@ -304,3 +305,214 @@ async def reset_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired token"
         )
+
+@router.post("/profile/changePassword")
+def changePassword(
+        request: schemes.ResetPasswordRequest,
+        current_user: schemes.UserResponse = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    """
+    Сброс пароля без токена
+    """
+    from ...core import config as cfg
+    try:
+        # Находим пользователя
+        user = crud_users.get_user_by_id(db, current_user.id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+        # Обновляем пароль
+        updated_user = crud_users.update_user(
+            db,
+            current_user.id,
+            {"password": request.new_password},
+            exclude_fields=[]
+        )
+
+        if not updated_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to update password"
+            )
+
+        return {
+            "message": "Пароль успешно изменен"
+        }
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired token"
+        )
+
+
+
+@router.get("/stats")
+def get_user_stats(
+        db: Session = Depends(get_db),
+        current_user: schemes.UserResponse = Depends(get_current_user),
+):
+    """
+    Получение статистики пользователя
+    """
+    from ...crud import tasks as crud_tasks, subjects as crud_subjects
+
+    # Используем существующую функцию из tasks
+    tasks_stats = crud_tasks.get_user_tasks_stats(db, current_user.id)
+
+    # Получаем все предметы пользователя
+    subjects = crud_subjects.get_user_subjects(db, current_user.id)
+
+    # Рассчитываем статистику по предметам через общую функцию
+    subject_stats = []
+    for subject in subjects:
+        stats = crud_subjects.get_subject_stats(db, subject.id, current_user.id)
+
+        subject_stats.append({
+            "subject_id": subject.id,
+            "subject_name": subject.name,
+            # "subject_color": subject.color, #TODO Верни
+            "total_tasks": stats["total_tasks"],
+            "completed_tasks": stats["completed"],
+            "completion_rate": stats["completion_rate"]
+        })
+
+    # Активность за последнюю неделю - исправляем сравнение дат
+    from ...schemes import TaskFilter
+
+    now = getServerTime()  # aware datetime с часовым поясом Москвы
+    last_week = now - timedelta(days=7)
+
+    filters = TaskFilter(limit=1000)
+    all_tasks, _ = crud_tasks.get_tasks(db, current_user.id, filters, include_overdue=False)
+
+    # Правильно сравниваем даты с учетом часовых поясов
+    recent_tasks = []
+    for task in all_tasks:
+        if task.created_at is not None:
+            # Приводим created_at к московскому времени для сравнения
+            if task.created_at.tzinfo is None:
+                # Если created_at без часового пояса, считаем что это Москва
+                created_at_localized = MOSCOW_TZ.localize(task.created_at)
+            else:
+                # Если есть часовой пояс, конвертируем в Москву
+                created_at_localized = task.created_at.astimezone(MOSCOW_TZ)
+
+            if created_at_localized >= last_week:
+                recent_tasks.append(task)
+
+    # Среднее время выполнения (добавим эту функцию)
+    # avg_completion_time = calculate_avg_completion_time(all_tasks)
+
+    # Серия дней подряд (упрощенная версия)
+    streak_days = calculate_streak_days(all_tasks)
+
+    return {
+        "overview": {
+            "total_tasks": tasks_stats["total"],
+            "completed_tasks": tasks_stats["completed"],
+            "assigned_tasks": tasks_stats["assigned"],
+            "overdue_tasks": tasks_stats["overdue"],
+            "total_subjects": len(subjects),
+            "productivity_score": int(tasks_stats["completion_rate"] * 100),
+            "streak_days": streak_days,
+            # "avg_completion_time": avg_completion_time,
+            "priority_stats": tasks_stats.get("priority_stats", {})
+        },
+        "subject_stats": subject_stats,
+        "recent_activity": {
+            "last_week_tasks": len(recent_tasks),
+            "last_week_completed": len([t for t in recent_tasks if t.status == "completed"]),
+            "daily_average": round(len(recent_tasks) / 7, 1) if recent_tasks else 0
+        }
+    }
+
+
+
+# def calculate_avg_completion_time(tasks) -> str:
+#     """
+#     Рассчитывает среднее время выполнения заданий с учетом часовых поясов
+#     """
+#     from datetime import timedelta
+#
+#     completed_tasks = [t for t in tasks if t.status == "completed" and t.created_at and t.updated_at]
+#
+#     if not completed_tasks:
+#         return "Нет данных"
+#
+#     total_seconds = 0
+#     for task in completed_tasks:
+#         # Приводим даты к одному часовому поясу для правильного сравнения
+#         if task.created_at.tzinfo is None:
+#             created_at = MOSCOW_TZ.localize(task.created_at)
+#         else:
+#             created_at = task.created_at.astimezone(MOSCOW_TZ)
+#
+#         if task.updated_at.tzinfo is None:
+#             updated_at = MOSCOW_TZ.localize(task.updated_at)
+#         else:
+#             updated_at = task.updated_at.astimezone(MOSCOW_TZ)
+#
+#         # Время между созданием и обновлением (когда отметили как выполненное)
+#         time_diff = updated_at - created_at
+#         total_seconds += time_diff.total_seconds()
+#
+#     avg_seconds = total_seconds / len(completed_tasks)
+#
+#     if avg_seconds < 60:
+#         return f"{int(avg_seconds)} секунд"
+#     elif avg_seconds < 3600:
+#         return f"{int(avg_seconds / 60)} минут"
+#     elif avg_seconds < 86400:
+#         return f"{avg_seconds / 3600:.1f} часов"
+#     else:
+#         return f"{avg_seconds / 86400:.1f} дней"
+#
+
+def calculate_streak_days(tasks) -> int:
+    """
+    Рассчитывает сколько дней подряд пользователь добавлял/выполнял задания
+    Упрощенная версия - проверяем активность по созданию заданий
+    """
+    if not tasks:
+        return 0
+
+    # Собираем уникальные даты активности
+    activity_dates = set()
+    for task in tasks:
+        if task.created_at is not None:
+            if task.created_at.tzinfo is None:
+                created_at = MOSCOW_TZ.localize(task.created_at)
+            else:
+                created_at = task.created_at.astimezone(MOSCOW_TZ)
+            activity_dates.add(created_at.date())
+
+    if not activity_dates:
+        return 0
+
+    # Сортируем даты
+    sorted_dates = sorted(activity_dates, reverse=True)
+
+    now = getServerTime()
+    today = now.date()
+
+    # Проверяем, была ли активность сегодня
+    streak = 0
+    if sorted_dates[0] == today:
+        streak = 1
+
+        # Проверяем предыдущие дни
+        from datetime import timedelta
+        check_date = today - timedelta(days=1)
+        for date in sorted_dates[1:]:
+            if date == check_date:
+                streak += 1
+                check_date -= timedelta(days=1)
+            else:
+                break
+
+    return streak

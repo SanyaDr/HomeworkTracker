@@ -59,7 +59,7 @@ Base = declarative_base()
 # Для SQLite
 SQLALCHEMY_DATABASE_URL = "sqlite:///./database/homework_tracker.db"
 current_dir = os.path.dirname(os.path.abspath(__file__))  # backend/app/core/
-print(f"📁 Текущая директория: {current_dir}")
+# print(f"📁 Текущая директория: {current_dir}")
 
 # Для PostgreSQL (раскомментировать когда будет нужен)
 # SQLALCHEMY_DATABASE_URL = "postgresql://username:password@localhost/homework_tracker"
@@ -79,33 +79,33 @@ database_dir = os.path.join(project_root, "database")
 os.makedirs(database_dir, exist_ok=True)
 DATABASE_PATH = os.path.join(database_dir, "homework_tracker.db")
 
-print("Путь к БД ----------------->:", DATABASE_PATH)
+# print("Путь к БД ----------------->:", DATABASE_PATH)
 
 def init_db():
     """Инициализация базы данных"""
     """Создает базу данных и все таблицы, если они не существуют"""
     try:
         # Проверяем существование файла базы данных
-        db_file = ".../database/homework_tracker.db"
-        db_exists = os.path.exists(DATABASE_PATH)
+        # db_file = ".../database/homework_tracker.db"
+        # db_exists = os.path.exists(DATABASE_PATH)
 
         # Создаем все таблицы
         Base.metadata.create_all(bind=engine)
 
-        if not db_exists:
-            print("✅ База данных создана успешно!")
-        else:
-            print("✅ База данных подключена!")
+        # if not db_exists:
+        #     print("✅ База данных создана успешно!")
+        # else:
+        #     print("✅ База данных подключена!")
 
     except Exception as e:
         print(f"❌ Ошибка при создании базы данных: {e}")
         raise
     # Base.metadata.create_all(bind=engine)
-    print("База данных инициализирована")
+    # print("База данных инициализирована")
 
 
 def get_db():
-    print("Создание локальной сессии")
+    # print("Создание локальной сессии")
     db = SessionLocal()
     try:
         yield db
@@ -113,9 +113,9 @@ def get_db():
         db.close()
 
 def create_tables():
-    print("Создание таблиц в базе данных...")
+    # print("Создание таблиц в базе данных...")
     Base.metadata.create_all(bind=engine)
-    print("Таблицы успешно созданы!")
+    # print("Таблицы успешно созданы!")
 
 
 # Функция для проверки подключения к БД

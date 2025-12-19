@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить задание - Task Tracker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Добавить новое задание</h3>
+        </div>
+
+        <div class="card-body">
+          <!-- Форма добавления задания -->
+          <form id="addTaskForm">
+            <!-- Основные поля -->
+            <div class="mb-4">
+              <h5 class="mb-3">Основная информация</h5>
+
+              <div class="mb-3">
+                <label for="title" class="form-label required">
+                  <i class="fas fa-heading me-1"></i>Название задания
+                </label>
+                <input type="text" class="form-control" id="title" required
+                       placeholder="Например: Лабораторная работа по физике">
+                <div class="form-text">Краткое и понятное название задания</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="description" class="form-label">
+                  <i class="fas fa-align-left me-1"></i>Описание
+                </label>
+                <textarea class="form-control" id="description" rows="3"
+                          placeholder="Дополнительная информация о задании..."></textarea>
+                <div class="form-text">Необязательное поле, но поможет лучше понять задачу</div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="subject_id" class="form-label">
+                    <i class="fas fa-book me-1"></i>Предмет
+                  </label>
+                  <select class="form-select" id="subject_id" required>
+                    <option value="" selected disabled>Выберите предмет</option>
+                    <!-- Предметы будут загружены через JS -->
+                  </select>
+                  <div class="form-text">
+                    <a href="/subjects" class="text-decoration-none">
+                      <i class="fas fa-plus-circle me-1"></i>Добавить новый предмет
+                    </a>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="priority" class="form-label">
+                    <i class="fas fa-flag me-1"></i>Приоритет
+                  </label>
+                  <select class="form-select" id="priority">
+                    <option value="low">Низкий</option>
+                    <option value="medium" selected>Средний</option>
+                    <option value="high">Высокий</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Срок выполнения -->
+            <div class="mb-4">
+              <h5 class="mb-3">Срок выполнения</h5>
+
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="hasDeadline">
+                  <label class="form-check-label" for="hasDeadline">
+                    Установить срок выполнения
+                  </label>
+                </div>
+              </div>
+
+              <div class="row" id="deadlineFields" style="display: none;">
+                <div class="col-md-6 mb-3">
+                  <label for="deadline_date" class="form-label">Дата</label>
+                  <input type="date" class="form-control" id="deadline_date">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="deadline_time" class="form-label">Время</label>
+                  <input type="time" class="form-control" id="deadline_time" value="23:59">
+                </div>
+              </div>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="d-flex justify-content-between pt-3 border-top">
+              <a href="/tasks" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Назад к списку
+              </a>
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i>Сохранить задание
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Быстрый выбор -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Быстрый выбор</h6>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small mb-3">Часто используемые предметы:</p>
+          <div id="quickSubjects" class="d-flex flex-wrap gap-2">
+            <!-- Предметы загружаются через JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', async function() {
+    await loadSubjects();
+    setupForm();
+  });
+
+  // Загрузка предметов
+  async function loadSubjects() {
+    try {
+      const subjects = await API.request('/subjects');
+      populateSubjectSelect(subjects);
+      populateQuickSubjects(subjects);
+    } catch (error) {
+      console.error('Ошибка загрузки предметов:', error);
+      showNotification('Не удалось загрузить предметы', 'danger');
+    }
+  }
+
+  // Заполнение выпадающего списка предметов
+  function populateSubjectSelect(subjects) {
+    const select = document.getElementById('subject_id');
+
+    subjects.forEach(subject => {
+      const option = document.createElement('option');
+      option.value = subject.id;
+      option.textContent = subject.name;
+      option.style.color = subject.color;
+      select.appendChild(option);
+    });
+  }
+
+  // Заполнение быстрого выбора
+  function populateQuickSubjects(subjects) {
+    const container = document.getElementById('quickSubjects');
+
+    subjects.slice(0, 5).forEach(subject => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-sm btn-outline-primary';
+      btn.innerHTML = `
+                <span class="subject-dot" style="background-color: ${subject.color}"></span>
+                ${subject.name}
+            `;
+      btn.onclick = () => {
+        document.getElementById('subject_id').value = subject.id;
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  // Настройка формы
+  function setupForm() {
+    const form = document.getElementById('addTaskForm');
+    const hasDeadlineCheckbox = document.getElementById('hasDeadline');
+    const deadlineFields = document.getElementById('deadlineFields');
+
+    // Показать/скрыть поля срока
+    hasDeadlineCheckbox.addEventListener('change', function() {
+      deadlineFields.style.display = this.checked ? 'block' : 'none';
+      if (this.checked) {
+        // Установить дату на завтра по умолчанию
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('deadline_date').valueAsDate = tomorrow;
+      }
+    });
+
+    // Отправка формы
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      if (!validateForm()) {
+        return;
+      }
+
+      const taskData = getFormData();
+
+      try {
+        await API.request('/tasks', 'POST', taskData);
+        showNotification('Задание успешно добавлено!', 'success');
+
+        // Перенаправляем на список заданий через 1.5 секунды
+        setTimeout(() => {
+          window.location.href = '/tasks';
+        }, 1500);
+
+      } catch (error) {
+        showNotification(`Ошибка при добавлении задания: ${error.message}`, 'danger');
+      }
+    });
+  }
+
+  // Валидация формы
+  function validateForm() {
+    const title = document.getElementById('title').value.trim();
+    const subjectId = document.getElementById('subject_id').value;
+
+    if (!title) {
+      showNotification('Введите название задания', 'warning');
+      document.getElementById('title').focus();
+      return false;
+    }
+
+    if (!subjectId) {
+      showNotification('Выберите предмет', 'warning');
+      document.getElementById('subject_id').focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  // Получение данных формы
+  function getFormData() {
+    const hasDeadline = document.getElementById('hasDeadline').checked;
+    let deadline = null;
+
+    if (hasDeadline) {
+      const date = document.getElementById('deadline_date').value;
+      const time = document.getElementById('deadline_time').value;
+
+      if (date && time) {
+        deadline = new Date(`${date}T${time}`).toISOString();
+      }
+    }
+
+    return {
+      title: document.getElementById('title').value.trim(),
+      description: document.getElementById('description').value.trim() || null,
+      subject_id: parseInt(document.getElementById('subject_id').value),
+      priority: document.getElementById('priority').value,
+      deadline: deadline
+    };
+  }
+</script>
+
+<style>
+  .required:after {
+    content: " *";
+    color: #dc3545;
+  }
+
+  .subject-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  #addTaskForm .form-control:focus,
+  #addTaskForm .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+  }
+</style>
+{% endblock %}

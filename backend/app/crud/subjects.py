@@ -69,7 +69,6 @@ def delete_subject(db: Session, subject_id: int, user_id: Optional[int] = None) 
     db.commit()
     return True
 
-# Обновите функцию get_subject_stats:
 def get_subject_stats(db: Session, subject_id: int, user_id: int):
     """
     Получение статистики по предмету
@@ -81,14 +80,13 @@ def get_subject_stats(db: Session, subject_id: int, user_id: int):
     filters = TaskFilter(subject_id=subject_id, limit=1000)
     tasks, _ = crud_tasks.get_tasks(db, user_id, filters, include_overdue=False)
     subjects = get_user_subjects(db, user_id)
+    curSubject = get_subject_by_id(db, subject_id, user_id)
 
     # Считаем статистику
     totalTasks = len(tasks)
     totalSubjects = len(subjects)
     completed = sum(1 for task in tasks if task.status == "completed")
     assigned = totalTasks - completed
-
-
 
     # Задачи с дедлайном
     with_deadline = sum(1 for task in tasks if task.deadline is not None)
@@ -120,5 +118,6 @@ def get_subject_stats(db: Session, subject_id: int, user_id: int):
         "assigned": assigned,
         "with_deadline": with_deadline,
         "overdue": overdue,
-        "completion_rate": (completed / totalTasks * 100) if totalTasks > 0 else 0
+        "completion_rate": (completed / totalTasks * 100) if totalTasks > 0 else 0,
+        "created_at": curSubject.created_at,
     }

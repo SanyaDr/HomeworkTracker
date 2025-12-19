@@ -47,7 +47,6 @@ def create_user(db: Session, user):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    print("создал пользователя")
     return db_user
 
 

@@ -158,15 +158,15 @@
                     <div class="d-flex gap-3">
                         <div class="stat-badge">
                             <small class="d-block opacity-75">Заданий</small>
-                            <span class="fw-bold" id="total_Tasks">0</span>
+                            <span class="fw-bold" id="total_tasks">0</span>
                         </div>
                         <div class="stat-badge">
                             <small class="d-block opacity-75">Выполнено</small>
-                            <span class="fw-bold" id="completed_Tasks">0</span>
+                            <span class="fw-bold" id="completed_tasks">0</span>
                         </div>
                         <div class="stat-badge">
                             <small class="d-block opacity-75">Предметов</small>
-                            <span class="fw-bold" id="total_Subjects">0</span>
+                            <span class="fw-bold" id="total_subjects">0</span>
                         </div>
                     </div>
                 </div>
@@ -869,22 +869,23 @@
     async function loadUserStats() {
         try {
             userStats = await API.request('/users/stats');
-            usersStats.
-            console.log(userStats)
-            if (userStats) {
-                document.getElementById('total_tasks').textContent = userStats.total_tasks || 0;
-                document.getElementById('completed_tasks').textContent = userStats.completed_tasks || 0;
-                document.getElementById('total_Subjects').textContent = userStats.total_subjects || 0;
 
+            if (userStats.overview.total_tasks !== 0){
+                userStats.productivity_score = (userStats.overview.completed_tasks / userStats.overview.total_tasks) * 100;
+            }
+            if (userStats) {
+                document.getElementById('total_tasks').textContent = userStats.overview.total_tasks || 0;
+                document.getElementById('completed_tasks').textContent = userStats.overview.completed_tasks || 0;
+                document.getElementById('total_subjects').textContent = userStats.subject_stats.length || 0;
                 updateDetailedStats(userStats);
             }
+
         } catch (error) {
-            // Если endpoint нет, используем демо-данные
-            console.log('Статистика не загружена, используем демо-данные');
+            console.log('Ошибка загрузки данных', error);
             userStats = {
-                total_tasks: -1,
+                total_tasks: 0,
                 completed_tasks: 0,
-                total_subjects: -1,
+                total_subjects: 0,
                 productivity_score: 0,
                 streak_days: 0,
                 avg_completion_time: '0 дней'
@@ -979,7 +980,7 @@
                 };
 
                 try {
-                    const updatedUser = await API.request('/users/profile', 'PUT', updatedData);
+                    const updatedUser = await API.request('/users', 'PUT', updatedData);
 
                     showNotification('Профиль успешно обновлен', 'success');
                     userData = updatedUser;

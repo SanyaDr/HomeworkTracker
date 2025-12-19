@@ -156,8 +156,6 @@ def complete_task(
         )
     return db_task
 
-# В backend/app/api/endpoints/tasks.py, обновите get_tasks_summary:
-
 @router.get("/stats/summary")
 def get_tasks_summary(
         db: Session = Depends(get_db),

@@ -378,7 +378,8 @@ def get_user_stats(
             # "subject_color": subject.color, #TODO Верни
             "total_tasks": stats["total_tasks"],
             "completed_tasks": stats["completed"],
-            "completion_rate": stats["completion_rate"]
+            "completion_rate": stats["completion_rate"],
+            "created_at": stats["created_at"],
         })
 
     # Активность за последнюю неделю - исправляем сравнение дат

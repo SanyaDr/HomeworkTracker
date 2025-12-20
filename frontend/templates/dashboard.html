@@ -248,7 +248,7 @@
                 }
 
                 // Загрузка ближайших заданий
-                const tasksResponse = await API.request('/tasks?limit=5&sort=deadline');
+                const tasksResponse = await API.request('/tasks?limit=5&sort=deadline&status=assigned');
                 if (tasksResponse && tasksResponse.tasks) {
                     const tasksContainer = document.getElementById('upcoming-tasks');
                     if (tasksResponse.tasks.length > 0) {
@@ -260,7 +260,7 @@
                                         <small class="text-muted">
                                             <i class="fas fa-book me-1"></i>${task.subject_name || 'Без предмета'}
                                             <span class="mx-2">•</span>
-                                            <i class="fas fa-clock me-1"></i>${new Date(task.deadline).toLocaleDateString()}
+                                            <i class="fas fa-clock me-1"></i>${task.deadline ? new Date(task.deadline).toLocaleDateString() : 'Нет срока'}
                                         </small>
                                     </div>
                                     <span class="badge bg-${task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'info'}">

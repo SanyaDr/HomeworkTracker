@@ -228,6 +228,19 @@ async def about_page(request: Request, templates = Depends(get_templates)):
     }
     return templates.TemplateResponse("about.html", context)
 
+@router.get("/help", response_class=HTMLResponse)
+async def about_page(request: Request, templates = Depends(get_templates)):
+    """
+    Страница "О проекте"
+    """
+
+    context = {
+        "request": request,
+        "current_year": getServerTime().year
+    }
+    return templates.TemplateResponse("about.html", context)
+
+
 @router.get("/forgot-password", response_class=HTMLResponse)
 async def forgot_password_page(request: Request, templates = Depends(get_templates)):
     # Страница забыл пароль

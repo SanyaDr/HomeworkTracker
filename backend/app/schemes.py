@@ -219,3 +219,6 @@ class UserStatsResponse(BaseModel):
     recent_activity: RecentActivity
 
     model_config = ConfigDict(from_attributes=True)
+
+class TaskStatusUpdate(BaseModel):
+    status: TaskStatus  # "assigned" или "completed"

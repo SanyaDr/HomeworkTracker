@@ -248,7 +248,7 @@ async def forgot_password(
 
     # Создаем URL для сброса пароля
     from ...core import config as cfg
-    reset_url = f"http://{cfg.host}:{cfg.port}/reset-password?token={reset_token}"
+    reset_url = f"http://{cfg.HOST}:{cfg.PORT}/reset-password?token={reset_token}"
 
     # Отправляем email (в production)
     # TODO: реализуй отправку email

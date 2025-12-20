@@ -6,17 +6,17 @@ import pytz
 from dotenv import load_dotenv
 load_dotenv()
 
-app_path = "app.main:app"
-# host = "127.0.0.1"
-# port = 8080
-# reload = True
-# log_level = "info"
-
 # Конфигурация сервера
-host = os.getenv("HOST", "127.0.0.1")
-port = int(os.getenv("PORT", 8000))
-reload = os.getenv("RELOAD", "True").lower() == "true"
-log_level = os.getenv("LOG_LEVEL", "info")
+APP_PATH = "app.main:app"
+HOST = "127.0.0.1"
+PORT = 8080
+RELOAD = True
+LOG_LEVEL = "error"
+
+# HOST = os.getenv("HOST", "127.0.0.1")
+# PORT = int(os.getenv("PORT", 8000))
+# RELOAD = os.getenv("RELOAD", "True").lower() == "true"
+# LOG_LEVEL = os.getenv("LOG_LEVEL", "info")
 
 # JWT конфигурация
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
@@ -28,44 +28,36 @@ MOSCOW_TZ = pytz.timezone('Europe/Moscow')
 def getServerTime() -> datetime:
     return datetime.now(MOSCOW_TZ)
 
-# def init_db():
-#     """Инициализация базы данных"""
-#     from .database import Base, engine
-#     import asyncio
-#
-#     async def async_init():
-#         async with engine.begin() as conn:
-#             # Для async создаем таблицы
-#             await conn.run_sync(Base.metadata.create_all)
-#         print("✅ База данных инициализирована")
-#
-#     # Запускаем async инициализацию
-#     asyncio.run(async_init())
+# Директория для логов
+LOG_DIR = "logs"
+# Сколько дней хранить логи
+LOG_RETENTION_DAYS = 30
+# Формат даты в имени файла
+DATE_FORMAT = "%Y-%m-%d"
+# Формат времени в записях логов
+TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-# def create_admin_user():
-#     """Создание администратора по умолчанию"""
-#     from .database import AsyncSessionLocal
-#     from app.crud import users as crud_users
-#     from app.schemes import UserCreate
-#     import asyncio
-#
-#     async def async_create_admin():
-#         async with AsyncSessionLocal() as db:
-#             # Проверяем существует ли администратор
-#             admin = await db.execute(
-#                 "SELECT * FROM users WHERE login = 'admin'"
-#             )
-#             if not admin.scalar():
-#                 admin_user = UserCreate(
-#                     login="admin",
-#                     email="admin@example.com",
-#                     name="Администратор",
-#                     password="admin123",  # Измените в продакшене!
-#                     groupName="Администрация"
-#                 )
-#                 await crud_users.create_user(db, admin_user)
-#                 print("✅ Администратор создан")
-#             else:
-#                 print("ℹ️ Администратор уже существует")
-#
-#     asyncio.run(async_create_admin())
+# @classmethod
+def get_log_dir(cls):
+    """Получить путь к директории логов"""
+    if not os.path.exists(cls.LOG_DIR):
+        os.makedirs(cls.LOG_DIR)
+    return cls.LOG_DIR
+
+# @classmethod
+def get_daily_log_file(cls):
+    """Получить путь к файлу логов за текущий день"""
+    log_dir = cls.get_log_dir()
+    current_date = datetime.now().strftime(cls.DATE_FORMAT)
+    return os.path.join(log_dir, f"errors_{current_date}.log")
+
+# @classmethod
+def get_general_log_file(cls):
+    """Получить путь к общему файлу логов"""
+    log_dir = cls.get_log_dir()
+    return os.path.join(log_dir, "errors_all.log")
+
+# @classmethod
+def get_timestamp(cls):
+    """Получить текущую метку времени"""
+    return datetime.now().strftime(cls.TIME_FORMAT)

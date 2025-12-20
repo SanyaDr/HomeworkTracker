@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.api.endpoints import api_routers, frontend_routers
 from app.core import init_db
+from app.core import logger
 
 app = FastAPI(
     version="0.0.2",
@@ -49,31 +50,30 @@ else:
     if os.path.exists(backend_static_dir):
         app.mount("/static", StaticFiles(directory=backend_static_dir), name="static")
 
-# app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 # Настраиваем Jinja2 шаблоны
 templates_dir = os.path.join(FRONTEND_DIR, "templates")
-# print("Trying load templates from:", templates_dir)
 if os.path.exists(templates_dir):
     templates = Jinja2Templates(directory=templates_dir)
-    # print(f"Templates loaded from: {templates_dir}")
 else:
     # Fallback на шаблоны в backend/frontend
     backend_templates_dir = os.path.join(BASE_DIR, "frontend", "templates")
     if os.path.exists(backend_templates_dir):
         templates = Jinja2Templates(directory=backend_templates_dir)
-        # print(f"Templates loaded from: {backend_templates_dir}")
     else:
         templates = None
-        # print("Warning: Templates directory not found")
 
 app.state.templates = templates
 
 # Инициализация базы данных при запуске
 @app.on_event("startup")
 def startup_event():
-    # print("Инициализация базы данных...")
     init_db()
-    # print("База данных проинициализирована!")
+    try:
+        from app.core.logger import cleanup_old_logs
+        cleanup_old_logs(days_to_keep=30)
+        print("Очистка старых логов выполнена")
+    except Exception as e:
+        print(f"Ошибка при очистке логов: {e}")
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
@@ -145,6 +145,8 @@ async def server_error_handler(request: Request, exc):
 # # Для отлавливания всех исключений
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
+    logger.log_error(exc, f"Запрос: {request.method} {request.url.path}")
+
     templates = request.app.state.templates
     if templates:
         # Передаем информацию об ошибке в шаблон

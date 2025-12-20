@@ -249,3 +249,9 @@ async def forgot_password_page(request: Request, templates = Depends(get_templat
         "current_year": getServerTime().year
     }
     return templates.TemplateResponse("forgotPassword.html", context)
+
+
+# Тест внутренней ошибки сервера
+# @router.get("/err", response_class=HTMLResponse)
+# async def testerr(request: Request, templates = Depends(get_templates)):
+#     return False

@@ -218,6 +218,10 @@
 
 {% block extra_js %}
 <script>
+    function getSubjectStats() {
+        return API.request('/users/stats')
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Загрузка статистики
         async function loadDashboardStats() {
@@ -277,21 +281,38 @@
                 }
 
                 // Загрузка предметов
-                const subjectsResponse = await API.request('/subjects');
+                // API.request('/subjects');
+                const subjectsResponse = await API.request('/subjects')
                 if (subjectsResponse) {
-                    const subjectsIds = subjectsResponse.map(subject => subject.id)
-                    console.log(subjectsResponse);
+                    let html = '';
+                    const stats = await getSubjectStats()
+                    // console.log(subjectsResponse);
                     const subjectsContainer = document.getElementById('subjects-list');
                     if (subjectsResponse.length > 0) {
-                        subjectsContainer.innerHTML = subjectsResponse.map(subject => `
+                        subjectsResponse.forEach(subject => {
+                            const subjectStats = stats.subject_stats.find(s => s.subject_id === subject.id);
+
+                            html += `
                             <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                                 <div class="d-flex align-items-center">
                                     <div class="color-dot me-2" style="background-color: ${subject.color}; width: 12px; height: 12px; border-radius: 50%;"></div>
                                     <span>${subject.name}</span>
                                 </div>
-                                <span class="badge bg-secondary">${subject.task_count || 0}</span>
+                                <span class="badge bg-secondary">${subjectStats.inProcess_tasks || 0}</span>
                             </div>
-                        `).join('');
+                        `
+                        })
+
+                        subjectsContainer.innerHTML = html;
+                    //     subjectsContainer.innerHTML = subjectsResponse.map(subject => `
+                    //         <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                    //             <div class="d-flex align-items-center">
+                    //                 <div class="color-dot me-2" style="background-color: ${subject.color}; width: 12px; height: 12px; border-radius: 50%;"></div>
+                    //                 <span>${subject.name}</span>
+                    //             </div>
+                    //             <span class="badge bg-secondary">${subject.task_count || 0}</span>
+                    //         </div>
+                    //     `).join('');
                     } else {
                         subjectsContainer.innerHTML = `
                             <div class="text-center py-3">

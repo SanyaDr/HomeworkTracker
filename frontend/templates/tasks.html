@@ -116,6 +116,20 @@
         border-radius: 50%;
         margin-right: 6px;
     }
+    /* Исправление для dropdown в карточках заданий */
+    .task-card .dropdown-menu {
+        position: fixed !important;
+        z-index: 1061 !important;
+    }
+
+    .task-card .dropdown {
+        position: static;
+    }
+
+    /* Убедимся, что карточки не обрезают dropdown */
+    .card-body {
+        overflow: visible !important;
+    }
 </style>
 {% endblock %}
 
@@ -704,6 +718,18 @@
         attachTaskEventListeners();
     }
 
+    // Сброс формы задания
+    function resetTaskForm() {
+        const form = document.getElementById('addTaskForm');
+        form.reset();
+        form.dataset.editMode = 'false';
+        delete form.dataset.editTaskId;
+        document.getElementById('hasDeadline').checked = false;
+        document.getElementById('deadlineFields').style.display = 'none';
+        document.getElementById('addTaskModalLabel').innerHTML =
+            '<i class="fas fa-plus-circle me-2"></i>Добавить новое задание';
+    }
+
     // Настройка всех событий
     function setupEventListeners() {
         // Фильтры
@@ -742,23 +768,30 @@
                 }
 
                 const taskData = getTaskFormData();
+                const isEditMode = this.dataset.editMode === 'true';
+                const taskId = this.dataset.editTaskId;
 
                 try {
-                    await API.request('/tasks', 'POST', taskData);
-                    showNotification('Задание успешно добавлено!', 'success');
+                    if (isEditMode) {
+                        // Редактирование существующего задания
+                        await API.request(`/tasks/${taskId}`, 'PUT', taskData);
+                        showNotification('Задание успешно обновлено!', 'success');
+                    } else {
+                        // Создание нового задания
+                        await API.request('/tasks', 'POST', taskData);
+                        showNotification('Задание успешно добавлено!', 'success');
+                    }
 
                     // Закрываем модальное окно и очищаем форму
                     const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
                     modal.hide();
-                    addTaskForm.reset();
-                    document.getElementById('hasDeadline').checked = false;
-                    document.getElementById('deadlineFields').style.display = 'none';
+                    resetTaskForm();
 
                     // Перезагружаем задания
                     await loadTasks();
 
                 } catch (error) {
-                    showNotification(`Ошибка при добавлении задания: ${error.message}`, 'danger');
+                    showNotification(`Ошибка: ${error.message}`, 'danger');
                 }
             });
         }
@@ -885,9 +918,13 @@
             }
         });
 
-        // При открытии модального окна добавления задания
+        // Сброс формы при закрытии модального окна
         const addTaskModal = document.getElementById('addTaskModal');
         if (addTaskModal) {
+            addTaskModal.addEventListener('hidden.bs.modal', function() {
+                resetTaskForm();
+            });
+
             addTaskModal.addEventListener('shown.bs.modal', function() {
                 document.getElementById('taskTitle').focus();
             });
@@ -901,10 +938,11 @@
             checkbox.addEventListener('change', async function() {
                 const taskId = this.dataset.taskId;
                 const isCompleted = this.checked;
+                const newStatus = isCompleted ? 'completed' : 'assigned';
 
                 try {
-                    await API.request(`/tasks/${taskId}`, 'PATCH', {
-                        status: isCompleted ? 'completed' : 'assigned'
+                    await API.request(`/tasks/${taskId}/status`, 'PATCH', {
+                        status: newStatus
                     });
 
                     showNotification(
@@ -955,43 +993,20 @@
 
                     // Открываем модальное окно
                     const modal = new bootstrap.Modal(document.getElementById('addTaskModal'));
-                    modal.show();
 
-                    // Меняем заголовок и действие формы
+
+                    // Меняем заголовок
                     document.getElementById('addTaskModalLabel').innerHTML =
                         '<i class="fas fa-edit me-2"></i>Редактировать задание';
 
-                    // Сохраняем ID редактируемого задания
+                    // Помечаем, что это редактирование
                     const form = document.getElementById('addTaskForm');
+                    form.dataset.editMode = 'true';
                     form.dataset.editTaskId = taskId;
 
-                    // Переопределяем отправку формы для редактирования
-                    const originalSubmit = form.onsubmit;
-                    form.onsubmit = async function(e) {
-                        e.preventDefault();
+                    // Открываем модальное окно
+                    modal.show();
 
-                        if (!validateTaskForm()) return;
-
-                        const taskData = getTaskFormData();
-
-                        try {
-                            await API.request(`/tasks/${taskId}`, 'PUT', taskData);
-                            showNotification('Задание успешно обновлено!', 'success');
-
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
-                            modal.hide();
-                            form.reset();
-                            form.onsubmit = originalSubmit;
-                            document.getElementById('addTaskModalLabel').innerHTML =
-                                '<i class="fas fa-plus-circle me-2"></i>Добавить новое задание';
-                            delete form.dataset.editTaskId;
-
-                            await loadTasks();
-
-                        } catch (error) {
-                            showNotification(`Ошибка при обновлении задания: ${error.message}`, 'danger');
-                        }
-                    };
                 }
             });
         });

@@ -1,3 +1,4 @@
+# backend/app/api/endpoints/tasks.py
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -138,24 +139,23 @@ def delete_task(
         )
     return {"message": "Task deleted successfully"}
 
-
-@router.patch("/{task_id}/complete", response_model=schemes.TaskResponse)
-def complete_task(
+@router.patch("/{task_id}/status", response_model=schemes.TaskResponse)
+def update_task_status(
         task_id: int,
+        status_update: schemes.TaskStatusUpdate,  # Новый Pydantic model
         db: Session = Depends(get_db),
         current_user: schemes.UserResponse = Depends(get_current_user)
 ):
     """
-    Отметить задачу как выполненную
+    Изменить статус задачи
     """
-    db_task = crud_tasks.complete_task(db, task_id, current_user.id)
+    db_task = crud_tasks.update_task_status(db, task_id, status_update.status, current_user.id)
     if not db_task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found"
         )
     return db_task
-
 @router.get("/stats/summary")
 def get_tasks_summary(
         db: Session = Depends(get_db),

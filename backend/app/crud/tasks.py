@@ -225,3 +225,18 @@ def get_user_tasks_stats(db: Session, user_id: int) -> dict:
             "low": low_priority
         }
     }
+
+def update_task_status(db: Session, task_id: int, new_status: str, user_id: int):
+    """
+    Обновление статуса задачи
+    """
+    db_task = get_task_by_id(db, task_id, user_id)
+    if not db_task:
+        return None
+
+    db_task.status = new_status
+    # db_task.updated_at = datetime.now()
+
+    db.commit()
+    db.refresh(db_task)
+    return db_task

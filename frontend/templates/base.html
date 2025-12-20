@@ -6,13 +6,13 @@
     <title>{% block title %}Task Tracker - Электронный журнал{% endblock %}</title>
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/bootstrap-5.3.8/css/bootstrap.min.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/fontawesome-6.4.0-web/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/googleFontApi.css">
 
-    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="/static/css/base.css">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -74,8 +74,7 @@
             </div>
             <div class="col-md-6 text-md-end">
                 <a href="/about" class="text-white me-3">О проекте</a>
-                <a href="/help" class="text-white me-3">Помощь</a>
-                <a href="/contacts" class="text-white">Контакты</a>
+                <a href="/about" class="text-white">Контакты</a>
             </div>
         </div>
     </div>
@@ -83,9 +82,11 @@
 
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/bootstrap-5.3.8/js/bootstrap.bundle.min.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
 <!-- Axios для HTTP запросов -->
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/static/axios/js/axios.min.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
 
 <script>
     // Легковесная проверка авторизации (без редиректов)
@@ -209,7 +210,11 @@
                 method: 'POST',
                 credentials: 'include'
             });
-        }
+        },
+
+        async getProfile() {
+            return await this.request('/users/profile', 'GET');
+        },
     };
 
     async function checkAuthFromCookie() {
@@ -272,6 +277,7 @@
 
         if (guestNav) guestNav.style.display = 'none';
         if (userNav) userNav.style.display = 'none';
+        const isAuth = await checkAuthLight();
 
         if (publicPages.includes(currentPath)) {
             // Для публичных страниц показываем гостевую навигацию
@@ -279,10 +285,10 @@
 
             // Но все равно проверяем - может пользователь уже авторизован
             try {
-                const isAuth = await checkAuthLight();
                 if (isAuth) {
                     // Если авторизован на публичной странице - показываем пользовательскую навигацию
                     if (userNav) userNav.style.display = 'flex';
+                    if (guestNav) guestNav.style.display = 'none';
                     if (guestNav) guestNav.style.display = 'none';
                     await loadUserProfile();
                 }
@@ -291,8 +297,6 @@
             }
         } else {
             // Для защищенных страниц проверяем авторизацию
-            const isAuth = await checkAuthLight();
-
             if (isAuth) {
                 if (userNav) userNav.style.display = 'flex';
                 await loadUserProfile();

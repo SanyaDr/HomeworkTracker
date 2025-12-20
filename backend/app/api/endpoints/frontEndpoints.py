@@ -3,13 +3,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 import os
-from datetime import datetime
 
-from ...core import get_db
-from ...core.auth import get_current_user
 from ... import schemes
 from ...crud import tasks as crud_tasks
 from ...crud import subjects as crud_subjects
+from ...core import get_db
+from ...core.config import getServerTime
+from ...core.auth import get_current_user
 from ...core.templates import get_templates
 
 router = APIRouter(tags=["frontend"])
@@ -23,7 +23,7 @@ async def home_page(request: Request, templates = Depends(get_templates)):
 
     context = {
         "request": request,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("index.html", context)
 
@@ -36,7 +36,7 @@ async def login_page(request: Request, templates = Depends(get_templates)):
 
     context = {
         "request": request,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("login.html", context)
 
@@ -49,7 +49,7 @@ async def register_page(request: Request , templates = Depends(get_templates)):
 
     context = {
         "request": request,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("register.html", context)
 
@@ -65,7 +65,7 @@ async def dashboard_page(
     Панель управления (требует аутентификации)
     """
     # Получаем статистику для отображения на дашборде
-    stats = crud_tasks.get_user_tasks_count(db, current_user.id)
+    stats = crud_tasks.get_user_tasks_stats(db, current_user.id)
 
     # Получаем ближайшие дедлайны
     from app.schemes import TaskFilter
@@ -82,7 +82,7 @@ async def dashboard_page(
         "user": current_user,
         "stats": stats,
         "upcoming_tasks": upcoming_tasks,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
 
     return templates.TemplateResponse("dashboard.html", context)
@@ -102,10 +102,23 @@ async def tasks_page(
     context = {
         "request": request,
         "user": current_user,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("tasks.html", context)
 
+
+@router.get("/tasks/add", response_class=HTMLResponse)
+async def add_task_page(
+        request: Request,
+        current_user: schemes.UserResponse = Depends(get_current_user),
+        templates = Depends(get_templates)
+):
+    context = {
+        "request": request,
+        "user": current_user,
+        "current_year": getServerTime().year
+    }
+    return templates.TemplateResponse( "taskAdd.html", context )
 
 @router.get("/subjects", response_class=HTMLResponse)
 async def subjects_page(
@@ -124,7 +137,7 @@ async def subjects_page(
         "request": request,
         "user": current_user,
         "subjects": user_subjects,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("subjects.html", context)
 
@@ -142,7 +155,7 @@ async def profile_page(
     context = {
         "request": request,
         "user": current_user,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("profile.html", context)
 
@@ -168,7 +181,7 @@ async def task_detail_page(
         "request": request,
         "user": current_user,
         "task": task,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("task_detail.html", context)
 
@@ -185,7 +198,7 @@ async def task_detail_page(
 #     context = {
 #         "request": request,
 #         "user": current_user,
-#         "current_year": datetime.now().year
+#         "current_year": getServerTime().year
 #     }
 #     return templates.TemplateResponse("settings.html", context)
 
@@ -198,7 +211,7 @@ async def help_page(request: Request , templates = Depends(get_templates)):
 
     context = {
         "request": request,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("help.html", context)
 
@@ -211,15 +224,28 @@ async def about_page(request: Request, templates = Depends(get_templates)):
 
     context = {
         "request": request,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("about.html", context)
+
+@router.get("/help", response_class=HTMLResponse)
+async def about_page(request: Request, templates = Depends(get_templates)):
+    """
+    Страница "О проекте"
+    """
+
+    context = {
+        "request": request,
+        "current_year": getServerTime().year
+    }
+    return templates.TemplateResponse("about.html", context)
+
 
 @router.get("/forgot-password", response_class=HTMLResponse)
 async def forgot_password_page(request: Request, templates = Depends(get_templates)):
     # Страница забыл пароль
     context = {
         "request": request,
-        "current_year": datetime.now().year
+        "current_year": getServerTime().year
     }
     return templates.TemplateResponse("forgotPassword.html", context)

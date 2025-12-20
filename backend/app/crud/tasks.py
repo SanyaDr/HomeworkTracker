@@ -1,9 +1,12 @@
+# backend/app/crud/tasks.py
+
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import List, Optional
-from datetime import datetime
 
-# TODO Поправь временную зону datetime
+from ..core.config import getServerTime
+from ..core.config import getServerTime, MOSCOW_TZ
+
 def create_task(db: Session, task, user_id: int) :
     """
     Создание новой задачи
@@ -66,7 +69,7 @@ def get_tasks(
 
     # Автоматическая пометка просроченных задач
     if include_overdue:
-        now = datetime.utcnow()
+        now = getServerTime()
         # Находим задачи, которые просрочены но ещё в статусе ASSIGNED
         overdue_tasks = query.filter(
             Task.status == enums.TaskStatus.ASSIGNED,
@@ -113,9 +116,6 @@ def update_task(
     for field, value in update_data.items():
         setattr(db_task, field, value)
 
-    # Обновляем время изменения
-    # db_task.updated_at = datetime.utcnow()  # Если добавите поле в модель
-
     db.commit()
     db.refresh(db_task)
     return db_task
@@ -146,20 +146,19 @@ def complete_task(db: Session, task_id: int, user_id: Optional[int] = None):
     from ..model import enums  # ← относительный импорт
 
     db_task.status = enums.TaskStatus.COMPLETED
-    # db_task.updated_at = datetime.utcnow()  # Если добавите поле в модель
+    # db_task.updated_at = getServerTime()  # Если добавите поле в модель
 
     db.commit()
     db.refresh(db_task)
     return db_task
 
-
-def get_user_tasks_count(db: Session, user_id: int) -> dict:
+def get_user_tasks_stats(db: Session, user_id: int) -> dict:
     """
     Получение статистики по задачам пользователя
     """
-    from .. import schemes  # ← относительный импорт
-    from ..model import Task, enums  # ← относительный импорт
+    from ..model import Task, enums
 
+    # Общая статистика
     total = db.query(Task).filter(Task.user_id == user_id).count()
     completed = db.query(Task).filter(
         Task.user_id == user_id,
@@ -170,10 +169,47 @@ def get_user_tasks_count(db: Session, user_id: int) -> dict:
         Task.status == enums.TaskStatus.ASSIGNED
     ).count()
 
-    # Задачи с дедлайном (опционально)
+    # Задачи с дедлайном
     with_deadline = db.query(Task).filter(
         Task.user_id == user_id,
         Task.deadline.isnot(None)
+    ).count()
+
+    # Просроченные задачи - правильно сравниваем
+    now = getServerTime()
+
+    overdue_query = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == enums.TaskStatus.ASSIGNED,
+        Task.deadline.isnot(None)
+    )
+
+    overdue = 0
+    for task in overdue_query.all():
+        if task.deadline is not None:
+            # Приводим deadline к тому же часовому поясу
+            if task.deadline.tzinfo is None:
+                deadline_localized = MOSCOW_TZ.localize(task.deadline)
+            else:
+                deadline_localized = task.deadline.astimezone(MOSCOW_TZ)
+
+            if deadline_localized < now:
+                overdue += 1
+
+    # Статистика по приоритетам
+    high_priority = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.priority == "high"
+    ).count()
+
+    medium_priority = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.priority == "medium"
+    ).count()
+
+    low_priority = db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.priority == "low"
     ).count()
 
     return {
@@ -181,5 +217,26 @@ def get_user_tasks_count(db: Session, user_id: int) -> dict:
         "completed": completed,
         "assigned": assigned,
         "with_deadline": with_deadline,
-        "completion_rate": completed / total if total > 0 else 0
+        "completion_rate": completed / total if total > 0 else 0,
+        "overdue": overdue,
+        "priority_stats": {
+            "high": high_priority,
+            "medium": medium_priority,
+            "low": low_priority
+        }
     }
+
+def update_task_status(db: Session, task_id: int, new_status: str, user_id: int):
+    """
+    Обновление статуса задачи
+    """
+    db_task = get_task_by_id(db, task_id, user_id)
+    if not db_task:
+        return None
+
+    db_task.status = new_status
+    # db_task.updated_at = datetime.now()
+
+    db.commit()
+    db.refresh(db_task)
+    return db_task

@@ -21,6 +21,6 @@ __all__ = [
     "SessionLocal",
     "get_db",
     "init_db",
-    "get_templates"
+    "get_templates",
     # "create_admin_user",
 ]

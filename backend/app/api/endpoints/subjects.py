@@ -1,12 +1,14 @@
+# backend/app/api/endpoints/subjects.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
 # Импорты с относительными путями
-from ...core.database import get_db
-from ...crud import subjects as crud_subjects
 from ... import schemes
+from ...crud import subjects as crud_subjects
+from ...core.database import get_db
 from ...core.auth import get_current_user
+from ...core.config import getServerTime
 
 router = APIRouter(prefix="/subjects", tags=["subjects"])
 
@@ -136,8 +138,6 @@ def get_subject_stats(
     """
     Получение статистики по предмету
     """
-    from ...crud import tasks as crud_tasks
-
     # Проверяем что предмет существует
     subject = crud_subjects.get_subject_by_id(db, subject_id, current_user.id)
     if not subject:
@@ -146,34 +146,11 @@ def get_subject_stats(
             detail="Subject not found"
         )
 
-    # Получаем все задачи для предмета
-    from ...schemes import TaskFilter
-    filters = TaskFilter(subject_id=subject_id, limit=1000)
-    tasks, _ = crud_tasks.get_tasks(db, current_user.id, filters)
+    # Используем общую функцию
+    stats = crud_subjects.get_subject_stats(db, subject_id, current_user.id)
 
-    # Считаем статистику
-    total = len(tasks)
-    completed = sum(1 for task in tasks if task.status == "completed")
-    assigned = total - completed
+    # Добавляем информацию о предмете
+    stats["subject_name"] = subject.name
+    stats["subject_color"] = subject.color
 
-    # Задачи с дедлайном
-    with_deadline = sum(1 for task in tasks if task.deadline is not None)
-
-    # Просроченные задачи
-    from datetime import datetime
-    now = datetime.utcnow()
-    overdue = sum(1 for task in tasks
-                  if task.status == "assigned"
-                  and task.deadline
-                  and task.deadline < now)
-
-    return {
-        "subject_id": subject_id,
-        "subject_name": subject.name,
-        "total_tasks": total,
-        "completed": completed,
-        "assigned": assigned,
-        "with_deadline": with_deadline,
-        "overdue": overdue,
-        "completion_rate": (completed / total * 100) if total > 0 else 0
-    }
+    return stats

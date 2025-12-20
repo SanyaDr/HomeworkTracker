@@ -385,7 +385,6 @@
                     name: document.getElementById('regName').value.trim(),
                     groupName: document.getElementById('regGroup').value.trim() || null,
                     password: document.getElementById('regPassword').value,
-                    // accountType: document.querySelector('input[name="accountType"]:checked').value
                 };
 
                 // Валидация
@@ -413,16 +412,18 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Регистрация...';
                 submitBtn.disabled = true;
 
+
                 try {
                     // Отправляем запрос на сервер
-                    const response = await API.request('/users', 'POST', formData);
-
+                    console.log("Начал обработку")
+                    const response = await API.request('/users/register', 'POST', formData);
                     // Показываем успех
                     registerSuccess.innerHTML = `
                         <i class="fas fa-check-circle me-2"></i>
                         Аккаунт успешно создан! Перенаправляем на страницу входа...
                     `;
                     registerSuccess.classList.remove('d-none');
+                    console.log("Закончил обработку")
 
                     // Автоматический вход через 2 секунды
                     setTimeout(async () => {
@@ -437,6 +438,7 @@
                     }, 2000);
 
                 } catch (error) {
+                    console.log(error)
                     // Показываем ошибку
                     registerError.textContent = error.message || 'Ошибка при регистрации. Попробуйте еще раз.';
                     registerError.classList.remove('d-none');

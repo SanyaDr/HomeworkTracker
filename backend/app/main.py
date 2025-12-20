@@ -10,9 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.api.endpoints import api_routers, frontend_routers
-from app.core import init_db, get_db
-from app import schemes
-from datetime import datetime
+from app.core import init_db
 
 app = FastAPI(
     version="0.0.2",
@@ -54,34 +52,35 @@ else:
 # app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 # Настраиваем Jinja2 шаблоны
 templates_dir = os.path.join(FRONTEND_DIR, "templates")
-print("Trying load templates from:", templates_dir)
+# print("Trying load templates from:", templates_dir)
 if os.path.exists(templates_dir):
     templates = Jinja2Templates(directory=templates_dir)
-    print(f"Templates loaded from: {templates_dir}")
+    # print(f"Templates loaded from: {templates_dir}")
 else:
     # Fallback на шаблоны в backend/frontend
     backend_templates_dir = os.path.join(BASE_DIR, "frontend", "templates")
     if os.path.exists(backend_templates_dir):
         templates = Jinja2Templates(directory=backend_templates_dir)
-        print(f"Templates loaded from: {backend_templates_dir}")
+        # print(f"Templates loaded from: {backend_templates_dir}")
     else:
         templates = None
-        print("Warning: Templates directory not found")
+        # print("Warning: Templates directory not found")
 
 app.state.templates = templates
 
 # Инициализация базы данных при запуске
 @app.on_event("startup")
 def startup_event():
-    print("Инициализация базы данных...")
+    # print("Инициализация базы данных...")
     init_db()
-    print("База данных проинициализирована!")
+    # print("База данных проинициализирована!")
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
     try:
         response = await call_next(request)
 
+        # TODO перенести к конфиг
         excludedPaths = [
             "/api/users/checkStatus",
             "/api/health",
@@ -120,7 +119,7 @@ async def not_found_handler(request: Request, exc):
     templates = request.app.state.templates
     if templates:
         return templates.TemplateResponse(
-            "errors/404.html",
+            "/errors/404.html",
             {"request": request},
             status_code=404
         )
@@ -170,30 +169,3 @@ async def general_exception_handler(request: Request, exc: Exception):
             "error": str(exc)
         }
     )
-
-
-# @app.get("/", response_class=HTMLResponse)
-# async def homePage(request: Request):
-#     return templates.TemplateResponse("index.html", {"request": request})
-
-
-# ==================== API ЭНДПОИНТЫ ====================
-#
-# @app.get("/api/health")
-# async def health_check(db: Session = Depends(get_db)):
-#     """
-#     Проверка здоровья приложения
-#     """
-#     try:
-#         db.execute("SELECT 1")
-#         db_status = "connected"
-#     except Exception as e:
-#         db_status = f"error: {str(e)}"
-#
-#     return JSONResponse({
-#         "status": "healthy",
-#         "service": "task-tracker",
-#         "database": db_status,
-#         "timestamp": datetime.utcnow().isoformat(),
-#         "version": "1.0.0"
-#     })

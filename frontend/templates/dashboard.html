@@ -36,7 +36,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3 col-6">
-                            <a href="/tasks/new" class="btn btn-outline-primary w-100 py-3">
+                            <a href="/tasks" class="btn btn-outline-primary w-100 py-3">
                                 <i class="fas fa-plus fa-2x mb-2"></i><br>
                                 Новое задание
                             </a>
@@ -47,12 +47,12 @@
                                 Предметы
                             </a>
                         </div>
-                        <div class="col-md-3 col-6">
-                            <a href="/calendar" class="btn btn-outline-info w-100 py-3">
-                                <i class="fas fa-calendar fa-2x mb-2"></i><br>
-                                Календарь
-                            </a>
-                        </div>
+<!--                        <div class="col-md-3 col-6">-->
+<!--                            <a href="/calendar" class="btn btn-outline-info w-100 py-3">-->
+<!--                                <i class="fas fa-calendar fa-2x mb-2"></i><br>-->
+<!--                                Календарь-->
+<!--                            </a>-->
+<!--                        </div>-->
                         <div class="col-md-3 col-6">
                             <a href="/profile" class="btn btn-outline-secondary w-100 py-3">
                                 <i class="fas fa-cog fa-2x mb-2"></i><br>
@@ -109,7 +109,7 @@
 
                     <!-- Прогресс бар -->
                     <div class="mt-4">
-                        <h6 class="mb-3">Прогресс выполнения (за неделю)</h6>
+                        <h6 class="mb-3">Прогресс выполнения</h6>
                         <div class="progress" style="height: 20px;">
                             <div class="progress-bar bg-success"
                                  id="progress-bar"
@@ -150,43 +150,43 @@
                 </div>
             </div>
 
-            <!-- Предстоящие события -->
-            <div class="card mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>События</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="bg-primary text-white rounded-circle p-2 me-3">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0">Сессия</h6>
-                                <small class="text-muted">Через 2 недели</small>
-                            </div>
-                        </div>
-                    </div>
+<!--            &lt;!&ndash; Предстоящие события &ndash;&gt;-->
+<!--            <div class="card mb-4">-->
+<!--                <div class="card-header bg-white">-->
+<!--                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>События</h5>-->
+<!--                </div>-->
+<!--                <div class="card-body">-->
+<!--                    <div class="mb-3">-->
+<!--                        <div class="d-flex align-items-center mb-2">-->
+<!--                            <div class="bg-primary text-white rounded-circle p-2 me-3">-->
+<!--                                <i class="fas fa-graduation-cap"></i>-->
+<!--                            </div>-->
+<!--                            <div>-->
+<!--                                <h6 class="mb-0">Сессия</h6>-->
+<!--                                <small class="text-muted">Через 2 недели</small>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="bg-success text-white rounded-circle p-2 me-3">
-                                <i class="fas fa-project-diagram"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0">Курсовая работа</h6>
-                                <small class="text-muted">Срок: 15 дней</small>
-                            </div>
-                        </div>
-                    </div>
+<!--                    <div class="mb-3">-->
+<!--                        <div class="d-flex align-items-center mb-2">-->
+<!--                            <div class="bg-success text-white rounded-circle p-2 me-3">-->
+<!--                                <i class="fas fa-project-diagram"></i>-->
+<!--                            </div>-->
+<!--                            <div>-->
+<!--                                <h6 class="mb-0">Курсовая работа</h6>-->
+<!--                                <small class="text-muted">Срок: 15 дней</small>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                    <div class="text-center">
-                        <a href="/calendar" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-calendar-alt me-1"></i>Весь календарь
-                        </a>
-                    </div>
-                </div>
-            </div>
+<!--                    <div class="text-center">-->
+<!--                        <a href="/calendar" class="btn btn-sm btn-outline-secondary">-->
+<!--                            <i class="fas fa-calendar-alt me-1"></i>Весь календарь-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
 
             <!-- Советы продуктивности -->
             <div class="card">
@@ -218,6 +218,10 @@
 
 {% block extra_js %}
 <script>
+    function getSubjectStats() {
+        return API.request('/users/stats')
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Загрузка статистики
         async function loadDashboardStats() {
@@ -244,7 +248,7 @@
                 }
 
                 // Загрузка ближайших заданий
-                const tasksResponse = await API.request('/tasks?limit=5&sort=deadline');
+                const tasksResponse = await API.request('/tasks?limit=5&sort=deadline&status=assigned');
                 if (tasksResponse && tasksResponse.tasks) {
                     const tasksContainer = document.getElementById('upcoming-tasks');
                     if (tasksResponse.tasks.length > 0) {
@@ -256,7 +260,7 @@
                                         <small class="text-muted">
                                             <i class="fas fa-book me-1"></i>${task.subject_name || 'Без предмета'}
                                             <span class="mx-2">•</span>
-                                            <i class="fas fa-clock me-1"></i>${new Date(task.deadline).toLocaleDateString()}
+                                            <i class="fas fa-clock me-1"></i>${task.deadline ? new Date(task.deadline).toLocaleDateString() : 'Нет срока'}
                                         </small>
                                     </div>
                                     <span class="badge bg-${task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'info'}">
@@ -277,19 +281,38 @@
                 }
 
                 // Загрузка предметов
-                const subjectsResponse = await API.request('/subjects');
+                // API.request('/subjects');
+                const subjectsResponse = await API.request('/subjects')
                 if (subjectsResponse) {
+                    let html = '';
+                    const stats = await getSubjectStats()
+                    // console.log(subjectsResponse);
                     const subjectsContainer = document.getElementById('subjects-list');
                     if (subjectsResponse.length > 0) {
-                        subjectsContainer.innerHTML = subjectsResponse.map(subject => `
+                        subjectsResponse.forEach(subject => {
+                            const subjectStats = stats.subject_stats.find(s => s.subject_id === subject.id);
+
+                            html += `
                             <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                                 <div class="d-flex align-items-center">
                                     <div class="color-dot me-2" style="background-color: ${subject.color}; width: 12px; height: 12px; border-radius: 50%;"></div>
                                     <span>${subject.name}</span>
                                 </div>
-                                <span class="badge bg-secondary">${subject.task_count || 0}</span>
+                                <span class="badge bg-secondary">${subjectStats.inProcess_tasks || 0}</span>
                             </div>
-                        `).join('');
+                        `
+                        })
+
+                        subjectsContainer.innerHTML = html;
+                    //     subjectsContainer.innerHTML = subjectsResponse.map(subject => `
+                    //         <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                    //             <div class="d-flex align-items-center">
+                    //                 <div class="color-dot me-2" style="background-color: ${subject.color}; width: 12px; height: 12px; border-radius: 50%;"></div>
+                    //                 <span>${subject.name}</span>
+                    //             </div>
+                    //             <span class="badge bg-secondary">${subject.task_count || 0}</span>
+                    //         </div>
+                    //     `).join('');
                     } else {
                         subjectsContainer.innerHTML = `
                             <div class="text-center py-3">

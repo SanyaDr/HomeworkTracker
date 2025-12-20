@@ -1,12 +1,9 @@
-import pytz
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Index, Enum as SQLEnum
 from sqlalchemy.orm import relationship
-from datetime import datetime
 
 from .enums import TaskStatus, TaskPriority
 from ..core.database import Base
-
-MOSCOW_TZ = pytz.timezone('Europe/Moscow')
+from ..core.config import getServerTime
 
 class User(Base):
     __tablename__ = "users"
@@ -18,7 +15,7 @@ class User(Base):
     name = Column(String(100))
     groupName = Column(String(100))
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now(MOSCOW_TZ))
+    created_at = Column(DateTime, default=getServerTime())
 
     subjects = relationship("Subject", back_populates="user", cascade="all, delete")
     tasks = relationship("Task", back_populates="user", cascade="all, delete")
@@ -29,7 +26,7 @@ class Subject(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String(100), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=getServerTime())
 
     user = relationship("User", back_populates="subjects")
     tasks = relationship("Task", back_populates="subject", cascade="all, delete")
@@ -47,7 +44,7 @@ class Task(Base):
     subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False, index=True)
     title = Column(String(200), nullable=False)
     description = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=getServerTime())
     deadline = Column(DateTime, index=True)  # ← ИНДЕКС УЖЕ ЗДЕСЬ!
 
     status = Column(SQLEnum(TaskStatus), default="assigned", index=True)

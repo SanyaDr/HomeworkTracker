@@ -1,16 +1,15 @@
 # backend/app/core/auth.py
 
-import os
-from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from datetime import timedelta
 
-from .database import get_db
-from .. import schemes
 from . import config
+from .. import schemes
+from .database import get_db
 
 # Конфигурация JWT
 SECRET_KEY = config.SECRET_KEY
@@ -88,9 +87,9 @@ async def get_current_user(
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = config.getServerTime() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = config.getServerTime() + timedelta(minutes=15)
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

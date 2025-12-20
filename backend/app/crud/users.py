@@ -37,7 +37,7 @@ def get_user_by_email(db: Session, email: str) -> Optional["User"]:
 
 def create_user(db: Session, user):
     """Создание нового пользователя"""
-    print("Зашел в crud create")
+    # print("Зашел в crud create")
     from ..model import User
     hashed_password = get_password_hash(user.password)
     db_user = User(
@@ -47,26 +47,25 @@ def create_user(db: Session, user):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    print("создал пользователя")
     return db_user
 
 
 def authenticate_user(db: Session, login: str, password: str) -> Optional["User"]:
     """Аутентификация пользователя"""
     user = get_user_by_login(db, login)
-    print("начал входить")
-    if not user:
-        print("Не нашел user по логину")
-    if not user:
-        user = get_user_by_email(db, login)
-        if not user:
-            print("Не нашел user по email")
+    # # print("начал входить")
+    # if not user:
+    #     # print("Не нашел user по логину")
+    # if not user:
+    #     user = get_user_by_email(db, login)
+    #     if not user:
+    #         # print("Не нашел user по email")
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
-        print("пароль неверный")
+        # print("пароль неверный")
         return False
-    print("Вошел вернул user")
+    # print("Вошел вернул user")
     return user
 
 

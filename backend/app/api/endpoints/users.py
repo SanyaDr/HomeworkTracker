@@ -208,6 +208,22 @@ def delete_user_me(
 
     return {"message": "User deleted successfully"}
 
+@router.delete("/data")
+def delete_all_user_data(
+        db: Session = Depends(get_db),
+        current_user: schemes.UserResponse = Depends(get_current_user)):
+    """
+    Удаление всех данных текущего пользователя
+    """
+    from ...crud.subjects import delete_all_subjects
+    success = delete_all_subjects(db, current_user.id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return {"message": "User data deleted successfully"}
+
 @router.post("/forgot-password")
 async def forgot_password(
         request: schemes.ForgotPasswordRequest,
@@ -379,6 +395,7 @@ def get_user_stats(
             "total_tasks": stats["total_tasks"],
             "completed_tasks": stats["completed"],
             "completion_rate": stats["completion_rate"],
+            "inProcess_tasks": stats["total_tasks"] - stats["completed"],
             "created_at": stats["created_at"],
         })
 
@@ -517,3 +534,4 @@ def calculate_streak_days(tasks) -> int:
                 break
 
     return streak
+

@@ -69,6 +69,23 @@ def delete_subject(db: Session, subject_id: int, user_id: Optional[int] = None) 
     db.commit()
     return True
 
+def delete_all_subjects(db: Session, user_id: Optional[int] = None) -> bool:
+    """
+    Удаление всех предметов текущего user
+    """
+    subjects = get_user_subjects(db, user_id)
+    if not subjects:
+        return False
+    try:
+        for subject in subjects:
+            db.delete(subject)
+            db.commit()
+    except:
+        print("ошибка удаления!")
+        return False
+    return True
+
+
 def get_subject_stats(db: Session, subject_id: int, user_id: int):
     """
     Получение статистики по предмету

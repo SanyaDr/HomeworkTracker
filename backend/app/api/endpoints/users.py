@@ -6,7 +6,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from ...core.config import getServerTime, MOSCOW_TZ
+from ...core import config as cfg
 from ...core.database import get_db
 from ...crud import users as crud_users
 from ... import schemes
@@ -57,7 +57,6 @@ def create_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
-    # print("прошел проверки create_user")
     return crud_users.create_user(db, user)
 
 
@@ -91,7 +90,8 @@ def login(
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         samesite="lax",
-        secure=True,
+        # secure = cfg.ENVIRONMENT == "production",  # True только в production
+        secure = bool(cfg.SECURE_COOKIE),
         path="/"
     )
 
@@ -243,7 +243,6 @@ async def forgot_password(
     )
 
     # Создаем URL для сброса пароля
-    from ...core import config as cfg
     reset_url = f"http://{cfg.HOST}:{cfg.PORT}/reset-password?token={reset_token}"
 
     # Отправляем email (в production)
@@ -396,7 +395,7 @@ def get_user_stats(
     # Активность за последнюю неделю - исправляем сравнение дат
     from ...schemes import TaskFilter
 
-    now = getServerTime()  # aware datetime с часовым поясом Москвы
+    now = cfg.getServerTime()  # aware datetime с часовым поясом Москвы
     last_week = now - timedelta(days=7)
 
     filters = TaskFilter(limit=1000)
@@ -409,10 +408,10 @@ def get_user_stats(
             # Приводим created_at к московскому времени для сравнения
             if task.created_at.tzinfo is None:
                 # Если created_at без часового пояса, считаем что это Москва
-                created_at_localized = MOSCOW_TZ.localize(task.created_at)
+                created_at_localized = cfg.MOSCOW_TZ.localize(task.created_at)
             else:
                 # Если есть часовой пояс, конвертируем в Москву
-                created_at_localized = task.created_at.astimezone(MOSCOW_TZ)
+                created_at_localized = task.created_at.astimezone(cfg.MOSCOW_TZ)
 
             if created_at_localized >= last_week:
                 recent_tasks.append(task)
@@ -454,9 +453,9 @@ def calculate_streak_days(tasks) -> int:
     for task in tasks:
         if task.created_at is not None:
             if task.created_at.tzinfo is None:
-                created_at = MOSCOW_TZ.localize(task.created_at)
+                created_at = cfg.MOSCOW_TZ.localize(task.created_at)
             else:
-                created_at = task.created_at.astimezone(MOSCOW_TZ)
+                created_at = task.created_at.astimezone(cfg.MOSCOW_TZ)
             activity_dates.add(created_at.date())
 
     if not activity_dates:
@@ -465,7 +464,7 @@ def calculate_streak_days(tasks) -> int:
     # Сортируем даты
     sorted_dates = sorted(activity_dates, reverse=True)
 
-    now = getServerTime()
+    now = cfg.getServerTime()
     today = now.date()
 
     # Проверяем, была ли активность сегодня

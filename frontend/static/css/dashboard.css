@@ -1,0 +1,36 @@
+.task-item {
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--primary-color) !important;
+}
+
+.task-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.task-item.high-priority {
+    border-left-color: var(--danger-color) !important;
+}
+
+.task-item.medium-priority {
+    border-left-color: var(--warning-color) !important;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.progress-bar {
+    transition: width 1s ease-in-out;
+}
+
+.tip-of-the-day {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    border-left: 4px solid var(--primary-color);
+}

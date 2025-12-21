@@ -39,7 +39,6 @@ def create_user(
         user: schemes.UserCreate,
         db: Session = Depends(get_db)
 ):
-    # print("Зашел в create_user")
     """
     Регистрация нового пользователя
     """
@@ -71,7 +70,6 @@ def login(
     """
     Аутентификация пользователя
     """
-    # print("зашел в post login endpoints/users")
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -85,7 +83,6 @@ def login(
         data={"sub": str(user.id)},
         expires_delta=access_token_expires
     )
-    # print("Начал ставить куки")
     # Устанавливаем токен в куки
     response.set_cookie(
         key="access_token",
@@ -94,7 +91,7 @@ def login(
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         samesite="lax",
-        secure=False,   # TODO True for production
+        secure=True,
         path="/"
     )
 
@@ -156,7 +153,6 @@ def logout(response: Response):
     Выход из системы (удаление cookies)
     """
     response.delete_cookie(key="access_token", path="/")
-    # TODO сделай переход на главную страницу
     return {"message": "Logged out successfully"}
 
 @router.get("/profile", response_model=schemes.UserResponse)
@@ -251,7 +247,7 @@ async def forgot_password(
     reset_url = f"http://{cfg.HOST}:{cfg.PORT}/reset-password?token={reset_token}"
 
     # Отправляем email (в production)
-    # TODO: реализуй отправку email
+    # TODO: реализовать отправку email
     # background_tasks.add_task(send_reset_email, email, reset_url)
 
     # Для разработки просто логируем
@@ -259,7 +255,7 @@ async def forgot_password(
 
     return {
         "message": "Инструкции по восстановлению пароля отправлены на email",
-        "debug_url": reset_url  # TODO: Удалить в production!
+        "debug_url": reset_url  # TODO: Вывод токена сброса пароля: Удалить в production!
     }
 
 
@@ -331,7 +327,6 @@ def changePassword(
     """
     Сброс пароля без токена
     """
-    from ...core import config as cfg
     try:
         # Находим пользователя
         user = crud_users.get_user_by_id(db, current_user.id)
@@ -391,7 +386,6 @@ def get_user_stats(
         subject_stats.append({
             "subject_id": subject.id,
             "subject_name": subject.name,
-            # "subject_color": subject.color, #TODO Верни
             "total_tasks": stats["total_tasks"],
             "completed_tasks": stats["completed"],
             "completion_rate": stats["completion_rate"],
@@ -423,9 +417,6 @@ def get_user_stats(
             if created_at_localized >= last_week:
                 recent_tasks.append(task)
 
-    # Среднее время выполнения (добавим эту функцию)
-    # avg_completion_time = calculate_avg_completion_time(all_tasks)
-
     # Серия дней подряд (упрощенная версия)
     streak_days = calculate_streak_days(all_tasks)
 
@@ -438,7 +429,6 @@ def get_user_stats(
             "total_subjects": len(subjects),
             "productivity_score": int(tasks_stats["completion_rate"] * 100),
             "streak_days": streak_days,
-            # "avg_completion_time": avg_completion_time,
             "priority_stats": tasks_stats.get("priority_stats", {})
         },
         "subject_stats": subject_stats,
@@ -450,46 +440,6 @@ def get_user_stats(
     }
 
 
-
-# def calculate_avg_completion_time(tasks) -> str:
-#     """
-#     Рассчитывает среднее время выполнения заданий с учетом часовых поясов
-#     """
-#     from datetime import timedelta
-#
-#     completed_tasks = [t for t in tasks if t.status == "completed" and t.created_at and t.updated_at]
-#
-#     if not completed_tasks:
-#         return "Нет данных"
-#
-#     total_seconds = 0
-#     for task in completed_tasks:
-#         # Приводим даты к одному часовому поясу для правильного сравнения
-#         if task.created_at.tzinfo is None:
-#             created_at = MOSCOW_TZ.localize(task.created_at)
-#         else:
-#             created_at = task.created_at.astimezone(MOSCOW_TZ)
-#
-#         if task.updated_at.tzinfo is None:
-#             updated_at = MOSCOW_TZ.localize(task.updated_at)
-#         else:
-#             updated_at = task.updated_at.astimezone(MOSCOW_TZ)
-#
-#         # Время между созданием и обновлением (когда отметили как выполненное)
-#         time_diff = updated_at - created_at
-#         total_seconds += time_diff.total_seconds()
-#
-#     avg_seconds = total_seconds / len(completed_tasks)
-#
-#     if avg_seconds < 60:
-#         return f"{int(avg_seconds)} секунд"
-#     elif avg_seconds < 3600:
-#         return f"{int(avg_seconds / 60)} минут"
-#     elif avg_seconds < 86400:
-#         return f"{avg_seconds / 3600:.1f} часов"
-#     else:
-#         return f"{avg_seconds / 86400:.1f} дней"
-#
 
 def calculate_streak_days(tasks) -> int:
     """

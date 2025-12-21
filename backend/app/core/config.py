@@ -8,10 +8,10 @@ load_dotenv()
 
 # Конфигурация сервера
 APP_PATH = "app.main:app"
-HOST = "127.0.0.1"
-PORT = 8080
+HOST = "0.0.0.0"
+PORT = 8000
 RELOAD = True
-LOG_LEVEL = "error"
+LOG_LEVEL = "info"
 
 # HOST = os.getenv("HOST", "127.0.0.1")
 # PORT = int(os.getenv("PORT", 8000))

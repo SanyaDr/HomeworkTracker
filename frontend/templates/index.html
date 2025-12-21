@@ -36,11 +36,6 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="col-lg-6 text-center">
-<!--                <img src="https://via.placeholder.com/500x400/4361ee/ffffff?text=Task+Tracker"-->
-<!--                     alt="Task Tracker Interface"-->
-<!--                     class="img-fluid rounded-3 shadow">-->
-            </div>
         </div>
     </div>
 </section>
@@ -230,30 +225,4 @@
 </section>
 {% endif %}
 
-{% endblock %}
-
-{% block extra_js %}
-{% if user %}
-<!--<script>-->
-<!--    document.addEventListener('DOMContentLoaded', function() {-->
-<!--        // Загружаем статистику для авторизованных пользователей-->
-<!--        async function loadStats() {-->
-<!--            try {-->
-<!--                const response = await API.request('/tasks/stats/summary');-->
-
-<!--                if (response) {-->
-<!--                    document.getElementById('total-tasks').textContent = response.total || 0;-->
-<!--                    document.getElementById('completed-tasks').textContent = response.completed || 0;-->
-<!--                    document.getElementById('pending-tasks').textContent = response.assigned || 0;-->
-<!--                    document.getElementById('overdue-tasks').textContent = response.overdue || 0;-->
-<!--                }-->
-<!--            } catch (error) {-->
-<!--                console.error('Error loading stats:', error);-->
-<!--            }-->
-<!--        }-->
-
-<!--        loadStats();-->
-<!--    });-->
-<!--</script>-->
-{% endif %}
 {% endblock %}

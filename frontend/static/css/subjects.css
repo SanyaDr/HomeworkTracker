@@ -1,0 +1,75 @@
+.subject-card {
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.subject-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.color-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: inline-block;
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+}
+
+.color-preview:hover {
+    transform: scale(1.1);
+}
+
+.subject-stats {
+    font-size: 0.85rem;
+}
+
+.empty-state {
+    padding: 60px 20px;
+}
+
+.color-palette {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.palette-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.palette-color:hover {
+    transform: scale(1.2);
+}
+
+.palette-color.selected {
+    border: 2px solid #333;
+}
+
+/* Исправление для dropdown в карточках */
+.subject-card {
+    position: relative;
+    z-index: 1;
+}
+
+.subject-card:hover {
+    z-index: 10; /* Поднимаем карточку при наведении */
+}
+
+.subject-card .dropdown-menu {
+    position: absolute;
+    z-index: 1050;
+    transform: translate3d(-120px, 40px, 0px) !important;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    .subject-card .dropdown-menu {
+        transform: translate3d(-150px, 40px, 0px) !important;
+    }
+}

@@ -1,0 +1,153 @@
+.task-card {
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.task-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.task-card.completed {
+    border-left-color: var(--success-color);
+    opacity: 0.8;
+}
+
+.task-card.high-priority {
+    border-left-color: var(--danger-color);
+}
+
+.task-card.low-priority {
+    border-left-color: #6c757d;
+}
+
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+}
+
+.subject-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.task-actions {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.task-card:hover .task-actions {
+    opacity: 1;
+}
+
+.empty-state {
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.filter-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.color-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: inline-block;
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+}
+
+.color-palette {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+}
+
+.palette-color {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: 2px solid transparent;
+}
+
+.palette-color:hover {
+    transform: scale(1.2);
+}
+
+.palette-color.selected {
+    border-color: #333;
+}
+
+.quick-subject {
+    transition: all 0.2s;
+}
+
+.quick-subject:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.subject-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+/* Исправление для dropdown в карточках заданий */
+.task-card .dropdown-menu {
+    position: fixed !important;
+    z-index: 1061 !important;
+}
+
+.task-card .dropdown {
+    position: static;
+}
+
+/* Убедимся, что карточки не обрезают dropdown */
+.card-body {
+    overflow: visible !important;
+}
+
+.required:after {
+    content: " *";
+    color: #dc3545;
+}
+
+.form-control-color {
+    width: 50px;
+    height: 38px;
+    padding: 2px;
+}
+
+.quick-subject.active {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.quick-priority.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+#addTaskModal .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}

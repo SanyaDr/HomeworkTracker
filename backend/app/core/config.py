@@ -29,6 +29,8 @@ publicPaths = [
     "/login",
     "/register"
 ]
+# secure для cookie
+SECURE_COOKIE = "false"
 
 # Временная зона
 MOSCOW_TZ = pytz.timezone('Europe/Moscow')

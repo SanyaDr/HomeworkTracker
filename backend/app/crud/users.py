@@ -53,19 +53,12 @@ def create_user(db: Session, user):
 def authenticate_user(db: Session, login: str, password: str) -> Optional["User"]:
     """Аутентификация пользователя"""
     user = get_user_by_login(db, login)
-    # # print("начал входить")
-    # if not user:
-    #     # print("Не нашел user по логину")
-    # if not user:
-    #     user = get_user_by_email(db, login)
-    #     if not user:
-    #         # print("Не нашел user по email")
     if not user:
-        return False
+        user = get_user_by_email(db, login)
+        if not user:
+            return False
     if not verify_password(password, user.hashed_password):
-        # print("пароль неверный")
         return False
-    # print("Вошел вернул user")
     return user
 
 

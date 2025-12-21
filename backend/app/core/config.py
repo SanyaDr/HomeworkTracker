@@ -1,4 +1,4 @@
-
+# backend/app/core/config.py
 import os
 from datetime import datetime
 
@@ -8,20 +8,27 @@ load_dotenv()
 
 # Конфигурация сервера
 APP_PATH = "app.main:app"
-HOST = "0.0.0.0"
-PORT = 8000
-RELOAD = True
-LOG_LEVEL = "info"
 
-# HOST = os.getenv("HOST", "127.0.0.1")
-# PORT = int(os.getenv("PORT", 8000))
-# RELOAD = os.getenv("RELOAD", "True").lower() == "true"
-# LOG_LEVEL = os.getenv("LOG_LEVEL", "info")
+HOST = os.getenv("HOST", "0.0.0.0")
+PORT = int(os.getenv("PORT", 8000))
+RELOAD = os.getenv("RELOAD", "false")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "info")
+DAYS_TO_KEEP_LOGS = 30   # Сколько дней хранить логи об ошибках
 
 # JWT конфигурация
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 90))
+if SECRET_KEY == "dev-secret-key-change-in-production":
+    print("secret key not found!")
+
+# Публичные страницы не требующие аутентификации
+publicPaths = [
+    "/api/users/checkStatus",
+    "/api/health",
+    "/login",
+    "/register"
+]
 
 # Временная зона
 MOSCOW_TZ = pytz.timezone('Europe/Moscow')

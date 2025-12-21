@@ -250,6 +250,21 @@ async def forgot_password_page(request: Request, templates = Depends(get_templat
     }
     return templates.TemplateResponse("forgotPassword.html", context)
 
+@router.get("/terms", response_class=HTMLResponse)
+async def terms_page(request: Request, templates = Depends(get_templates)):
+    context = {
+        "request": request,
+        "current_year": getServerTime().year
+    }
+    return templates.TemplateResponse("terms.html", context)
+
+@router.get("/privacy", response_class=HTMLResponse)
+async def privacy_page(request: Request, templates = Depends(get_templates)):
+    context = {
+        "request": request,
+        "current_year": getServerTime().year
+    }
+    return templates.TemplateResponse("privacy.html", context)
 
 # Тест внутренней ошибки сервера
 # @router.get("/err", response_class=HTMLResponse)

@@ -77,12 +77,6 @@ def get_tasks(
             Task.deadline < now
         ).all()
 
-        for task in overdue_tasks:
-            # TODO automatic overdue tasks
-            # Здесь можно обновить статус или добавить поле "просрочено"
-            # В зависимости от требований
-            pass  # Пока оставляем как есть, можно добавить логику позже
-
     # Получаем общее количество
     total = query.count()
 

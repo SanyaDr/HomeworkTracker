@@ -12,6 +12,8 @@ from sqlalchemy.orm import Session
 from app.api.endpoints import api_routers, frontend_routers
 from app.core import init_db
 from app.core import logger
+from app.core import config as cfg
+from app.core.config import publicPaths
 
 app = FastAPI(
     version="0.0.2",
@@ -70,7 +72,7 @@ def startup_event():
     init_db()
     try:
         from app.core.logger import cleanup_old_logs
-        cleanup_old_logs(days_to_keep=30)
+        cleanup_old_logs(days_to_keep=cfg.DAYS_TO_KEEP_LOGS)
         print("Очистка старых логов выполнена")
     except Exception as e:
         print(f"Ошибка при очистке логов: {e}")
@@ -80,14 +82,7 @@ async def auth_middleware(request: Request, call_next):
     try:
         response = await call_next(request)
 
-        # TODO перенести к конфиг
-        excludedPaths = [
-            "/api/users/checkStatus",
-            "/api/health",
-            "/login",
-            "/register"
-        ]
-
+        excludedPaths = cfg.publicPaths
         if any(request.url.path.startswith(path) for path in excludedPaths):
             return response
 

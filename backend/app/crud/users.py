@@ -26,22 +26,26 @@ def get_user_by_id(db: Session, user_id: int) -> Optional["User"]:
 def get_user_by_login(db: Session, login: str) -> Optional["User"]:
     """Получение пользователя по логину"""
     from ..model import User  # ← импортируем класс напрямую
-    return db.query(User).filter(User.login == login).first()
+    return db.query(User).filter(User.login == login.lower()).first()
 
 
 def get_user_by_email(db: Session, email: str) -> Optional["User"]:
     """Получение пользователя по email"""
     from ..model import User  # ← импортируем класс напрямую
-    return db.query(User).filter(User.email == email).first()
+    return db.query(User).filter(User.email == email.lower()).first()
 
 
 def create_user(db: Session, user):
     """Создание нового пользователя"""
-    # print("Зашел в crud create")
     from ..model import User
     hashed_password = get_password_hash(user.password)
+
+    user_data = user.model_dump(exclude={"password"})
+    user_data["login"] = user_data["login"].lower()
+    user_data["email"] = user_data["email"].lower()
+
     db_user = User(
-        **user.model_dump(exclude={"password"}),
+        **user_data,
         hashed_password=hashed_password
     )
     db.add(db_user)
@@ -53,19 +57,12 @@ def create_user(db: Session, user):
 def authenticate_user(db: Session, login: str, password: str) -> Optional["User"]:
     """Аутентификация пользователя"""
     user = get_user_by_login(db, login)
-    # # print("начал входить")
-    # if not user:
-    #     # print("Не нашел user по логину")
-    # if not user:
-    #     user = get_user_by_email(db, login)
-    #     if not user:
-    #         # print("Не нашел user по email")
     if not user:
-        return False
+        user = get_user_by_email(db, login)
+        if not user:
+            return False
     if not verify_password(password, user.hashed_password):
-        # print("пароль неверный")
         return False
-    # print("Вошел вернул user")
     return user
 
 

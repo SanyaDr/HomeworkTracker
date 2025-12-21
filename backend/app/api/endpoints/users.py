@@ -90,8 +90,7 @@ def login(
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         samesite="lax",
-        # secure = cfg.ENVIRONMENT == "production",  # True только в production
-        secure = bool(cfg.SECURE_COOKIE),
+        secure = cfg.SECURE_COOKIES,
         path="/"
     )
 

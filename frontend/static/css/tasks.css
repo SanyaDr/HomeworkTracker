@@ -43,11 +43,12 @@
 }
 
 .task-actions {
-    opacity: 0;
+    opacity: 0.75;
     transition: opacity 0.3s;
 }
 
 .task-card:hover .task-actions {
+    color: black;
     opacity: 1;
 }
 
@@ -107,13 +108,13 @@
     display: inline-block;
     width: 10px;
     height: 10px;
-    border-radius: 50%;
+    /*border-radius: 50%;*/
     margin-right: 6px;
 }
-/* Исправление для dropdown в карточках заданий */
+
 .task-card .dropdown-menu {
-    position: fixed !important;
-    z-index: 1061 !important;
+    /*position: fixed !important;*/
+    z-index: 9999 !important;
 }
 
 .task-card .dropdown {
@@ -151,3 +152,48 @@
     max-height: 70vh;
     overflow-y: auto;
 }
+
+/*!*-------*!*/
+
+/*!* Фикс для трех точек и dropdown *!*/
+/*.task-actions {*/
+/*    position: relative;*/
+/*    z-index: 10;*/
+/*}*/
+
+/*!* Явный цвет для кнопки с точками *!*/
+/*.task-actions .dropdown-toggle {*/
+/*    color: #6c757d !important;*/
+/*    background: none !important;*/
+/*    border: none;*/
+/*    padding: 0.25rem 0.5rem;*/
+/*    font-size: 1.2rem;*/
+/*}*/
+
+/*.task-actions .dropdown-toggle:hover {*/
+/*    color: #0d6efd !important;*/
+/*}*/
+
+/*!* Dropdown меню поверх всего *!*/
+/*.task-actions .dropdown-menu {*/
+/*    position: fixed !important;*/
+/*    z-index: 9999 !important;*/
+/*    transform: translate(-100px, 30px) !important;*/
+/*    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);*/
+/*    border: 1px solid rgba(0, 0, 0, 0.15);*/
+/*    border-radius: 0.375rem;*/
+/*}*/
+
+/*!* Элементы dropdown *!*/
+/*.task-actions .dropdown-item {*/
+/*    padding: 0.5rem 1rem;*/
+/*    font-size: 0.9rem;*/
+/*}*/
+
+/*.task-actions .dropdown-item:hover {*/
+/*    background-color: #f8f9fa;*/
+/*}*/
+
+/*.task-actions .dropdown-item.text-danger:hover {*/
+/*    background-color: rgba(220, 53, 69, 0.1);*/
+/*}*/

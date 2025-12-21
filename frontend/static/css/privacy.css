@@ -1,0 +1,28 @@
+.privacy-section {
+    margin-bottom: 3rem;
+}
+.privacy-section h2 {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.privacy-list {
+    padding-left: 20px;
+}
+.privacy-list li {
+    margin-bottom: 10px;
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+.data-table th, .data-table td {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    text-align: left;
+}
+.data-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}

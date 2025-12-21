@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Политика конфиденциальности - Task Tracker{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/css/privacy.css">
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Политика конфиденциальности</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <div class="card-body p-5">
+                    <h1 class="text-center mb-5">Политика конфиденциальности Task Tracker</h1>
+
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Эта политика описывает, как мы собираем, используем и защищаем ваши личные данные.
+                    </div>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-user-shield me-2 text-primary"></i>1. Общие положения</h2>
+                        <p>1.1. Администрация сервиса Task Tracker (далее — «Мы») обязуется соблюдать конфиденциальность данных наших пользователей (далее — «Вы»).</p>
+                        <p>1.2. Настоящая Политика конфиденциальности объясняет, какую информацию мы собираем, как ее используем и защищаем.</p>
+                        <p>1.3. Используя наш Сервис, вы соглашаетесь на сбор и использование информации в соответствии с данной политикой.</p>
+                    </section>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-database me-2 text-primary"></i>2. Собираемые данные</h2>
+                        <p>2.1. Мы собираем следующие виды данных:</p>
+
+                        <h5 class="mt-3">2.1.1. Данные, предоставляемые вами:</h5>
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Тип данных</th>
+                                <th>Пример</th>
+                                <th>Цель сбора</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Учетные данные</td>
+                                <td>Логин, email, пароль</td>
+                                <td>Аутентификация и безопасность</td>
+                            </tr>
+                            <tr>
+                                <td>Профильная информация</td>
+                                <td>Имя, фамилия</td>
+                                <td>Персонализация сервиса</td>
+                            </tr>
+                            <tr>
+                                <td>Учебные данные</td>
+                                <td>Задания, предметы, дедлайны, группа/класс обучающегося</td>
+                                <td>Основная функциональность</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <h5 class="mt-3">2.1.2. Автоматически собираемые данные:</h5>
+                        <ul class="privacy-list">
+                            <li><strong>Техническая информация:</strong> Тип браузера, операционная система</li>
+                            <li><strong>Информация об использовании:</strong> посещенные страницы, время сессий</li>
+                            <li><strong>Данные устройств:</strong> тип устройства, разрешение экрана</li>
+                        </ul>
+                    </section>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-cogs me-2 text-primary"></i>3. Использование данных</h2>
+                        <p>Мы используем собранные данные для следующих целей:</p>
+                        <ul class="privacy-list">
+                            <li>Предоставление и улучшение функциональности Сервиса</li>
+                            <li>Персонализация вашего опыта использования</li>
+                            <li>Обеспечение безопасности вашей учетной записи</li>
+                            <li>Отправка важных уведомлений (если включены)</li>
+                            <li>Анализ использования Сервиса для улучшения</li>
+                            <li>Предотвращение мошенничества и злоупотреблений</li>
+                        </ul>
+                    </section>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-share-alt me-2 text-primary"></i>4. Передача данных третьим лицам</h2>
+                        <p>4.1. Мы <strong>не продаем</strong> ваши персональные данные.</p>
+                        <p>4.2. Мы можем передавать данные в следующих случаях:</p>
+                        <ul class="privacy-list">
+                            <li>По требованию закона или судебного решения</li>
+                            <li>Для защиты наших прав или безопасности</li>
+                            <li>Сервисным поставщикам (хостинг, аналитика) с соблюдением конфиденциальности</li>
+                            <li>С вашего явного согласия</li>
+                        </ul>
+                        <p>4.3. Все третьи лица, получающие доступ к данным, обязаны соблюдать требования конфиденциальности.</p>
+                    </section>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-lock me-2 text-primary"></i>5. Безопасность данных</h2>
+                        <p>5.1. Мы принимаем разумные меры безопасности для защиты ваших данных:</p>
+                        <ul class="privacy-list">
+                            <li>Шифрование передаваемых данных (HTTPS)</li>
+                            <li>Защита паролей с использованием хеширования</li>
+                            <li>Регулярное обновление систем безопасности</li>
+                            <li>Ограниченный доступ к данным для сотрудников</li>
+                        </ul>
+                        <p>5.2. Однако ни один метод передачи данных через интернет или метод электронного хранения не является на 100% безопасным.</p>
+                    </section>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-cookie me-2 text-primary"></i>6. Файлы cookies</h2>
+                        <p>6.1. Мы используем cookies для:</p>
+                        <ul class="privacy-list">
+                            <li>Запоминания ваших предпочтений</li>
+                            <li>Аутентификации пользователей</li>
+                            <li>Анализа использования Сервиса</li>
+                        </ul>
+                        <p>6.2. Вы можете отключить cookies в настройках браузера, но это может ограничить функциональность Сервиса.</p>
+                    </section>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-user-edit me-2 text-primary"></i>7. Ваши права</h2>
+                        <p>Вы имеете право:</p>
+                        <ul class="privacy-list">
+                            <li>Получить доступ к вашим личным данным</li>
+                            <li>Исправить неточные данные</li>
+                            <li>Удалить вашу учетную запись и данные</li>
+                            <li>Ограничить обработку ваших данных</li>
+                            <li>Получить копию ваших данных в машиночитаемом формате</li>
+                        </ul>
+                        <p>Для реализации этих прав обратитесь к нам по указанным контактам.</p>
+                    </section>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-exchange-alt me-2 text-primary"></i>8. Изменения политики</h2>
+                        <p>9.1. Мы можем обновлять эту Политику конфиденциальности периодически.</p>
+                        <p>9.2. О значительных изменениях мы уведомим вас через Сервис или по электронной почте.</p>
+                        <p>9.3. Продолжение использования Сервиса после изменений означает принятие новой Политики.</p>
+                    </section>
+
+                    <section class="privacy-section">
+                        <h2><i class="fas fa-envelope me-2 text-primary"></i>9. Контакты</h2>
+                        <p>Если у вас есть вопросы о настоящей Политике конфиденциальности, свяжитесь с нами:</p>
+                        <div class="contact-info mt-3">
+                            <p><i class="fas fa-envelope me-2"></i> <strong>Email:</strong> drovosekov@edu.misis.ru</p>
+                            <p><i class="fas fa-map-marker-alt me-2"></i> <strong>Адрес:</strong> Россия, Москва, Ленинский проспект, 4</p>
+                            <p><i class="fas fa-clock me-2"></i> <strong>Время ответа:</strong> В течение 3 рабочих дней</p>
+                        </div>
+                    </section>
+
+                    <div class="alert alert-success mt-5">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Благодарим вас за доверие к Task Tracker. Мы ценим вашу конфиденциальность и обязуемся защищать ваши данные.
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white text-center">
+                    <a href="/" class="btn btn-primary me-3">
+                        <i class="fas fa-home me-2"></i>На главную
+                    </a>
+                    <a href="/terms" class="btn btn-outline-primary">
+                        <i class="fas fa-file-contract me-2"></i>Условия использования
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

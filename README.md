@@ -114,3 +114,4 @@ ACCESS_TOKEN_EXPIRE_MINUTES=90
 
 # Контакты
 Если заметили ошибку, недочет, и прочие косяки - ждем вас в issues!  
+Или [почта для связи](mailto:drovosekov@edu.misis.ru)
